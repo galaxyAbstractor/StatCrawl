@@ -1,0 +1,13 @@
+Makes stats about the Internet. School project.
+
+Country database from http://ipinfodb.com/ip_database.php is needed (Complete (city) single table)
+
+Changelog
+=======
+* Jan 30, 2011: Re-organisation of files and packages. Stat frame started. JXTreeTable added for Country stats (wow this one was a hard one to figure out lol). Country stats improved.
+* Jan 22, 2011: Added country, city and region stats for the IPs. 
+* Jan 21, 2011: Added host stats. IP get's only counted once per hostname. Gets stuck if website is down, need to implement some sort of timeout continue stuff
+* Jan 20, 2011: Should only crawl sites that is text/html, we don't want to crawl images as jsoup apparently gets stuck there. If an URL contains # we still get stuck though :s. Basic IP stats added.
+* Jan 19, 2011: Further mySQL transition
+* Jan 18, 2011: Started transition from vars to mySQL to store pending and crawled URLs
+* Jan 14, 2011: Start. It get's stuck at twitter though... Have to fix that
