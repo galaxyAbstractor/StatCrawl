@@ -50,7 +50,7 @@ public class Db {
      * Add an URL to the pending list, as long as it doesn't already exist as crawled
      * @param url the URL to add
      */
-    public void insertPending(String url){
+    public synchronized void insertPending(String url){
         String md5 = getMD5Digest(url.getBytes());
         String query = "SELECT * FROM crawled WHERE md5 = '"+md5+"'";
         
@@ -81,10 +81,10 @@ public class Db {
      * Insert a URL to the crawled table
      * @param url the URL to insert
      */
-    public void insertCrawled(String url){
+    public synchronized void insertCrawled(String url){
         
         String md5 = getMD5Digest(url.getBytes());
-        String query = "INSERT INTO crawled (md5, url) VALUES ('"+ md5 +"','"+ url +"')";
+        String query = "INSERT IGNORE INTO crawled (md5, url) VALUES ('"+ md5 +"','"+ url +"')";
         
         try {        
             Statement insertStatement = conn.createStatement();
@@ -98,7 +98,7 @@ public class Db {
      * Remove an URL from the pending list
      * @param url the URL to remove
      */
-    public void removePending(String url){
+    public synchronized void removePending(String url){
         String md5 = getMD5Digest(url.getBytes());
         String query = "DELETE FROM pending WHERE md5 = '"+md5+"'";
         
@@ -115,7 +115,7 @@ public class Db {
      * Get the first item on the list
      * @return the URL as a String
      */
-    public String getFirstPending() {
+    public synchronized String getFirstPending() {
 
         try {
             String query = "SELECT url FROM pending";
@@ -125,9 +125,9 @@ public class Db {
             rs.next();
             return rs.getString("url");
         } catch (SQLException ex) {
-            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
-        return null;
+        
     }
     
     /**

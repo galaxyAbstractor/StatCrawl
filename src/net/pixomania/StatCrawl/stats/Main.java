@@ -3,6 +3,7 @@ package net.pixomania.StatCrawl.stats;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import net.pixomania.StatCrawl.db.Db;
+import net.pixomania.StatCrawl.db.DbSingleton;
 
 /**
  *
@@ -12,7 +13,7 @@ public class Main extends javax.swing.JFrame {
     static {
       System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
     }
-    private Db db = new Db();
+    private Db db = DbSingleton.getDb();
     /** Creates new form Main */
     public Main() {
         initComponents();

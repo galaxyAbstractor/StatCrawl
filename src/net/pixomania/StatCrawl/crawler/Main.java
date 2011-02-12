@@ -1,12 +1,12 @@
 package net.pixomania.StatCrawl.crawler;
 
-import java.net.URL;
-import java.util.HashSet;
-import java.util.LinkedList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.swing.JToggleButton;
+import javax.swing.table.DefaultTableModel;
 import net.pixomania.StatCrawl.db.Db;
+import net.pixomania.StatCrawl.db.DbSingleton;
 
 /**
  *
@@ -14,16 +14,8 @@ import net.pixomania.StatCrawl.db.Db;
  */
 public class Main extends javax.swing.JFrame {
 
-    private static HashSet<URL> pending = new HashSet<URL>();
-    private static LinkedList<String> output = new LinkedList<String>();
-    private static HashSet<URL> crawled = new HashSet<URL>();
-
     public static boolean toggled = false;
-
-    // Some stats for debugging purpose
-    public static int linksAddedToPending = 0;
-    public static int linksFound = 0;
-    public static int linksTotal = 0;
+    public static DefaultTableModel model;
     
     static {
        System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
@@ -47,13 +39,12 @@ public class Main extends javax.swing.JFrame {
         urlField = new javax.swing.JTextField();
         crawlToggleButton = new javax.swing.JToggleButton();
         fillerLabel = new javax.swing.JLabel();
-        outputScrollPane = new javax.swing.JScrollPane();
-        outputTextArea = new javax.swing.JTextArea();
         statusBar = new org.jdesktop.swingx.JXStatusBar();
         statusLabel = new javax.swing.JLabel();
         pendingLabel = new javax.swing.JLabel();
         crawledLabel = new javax.swing.JLabel();
-        crawlingLabel = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jXTable1 = new org.jdesktop.swingx.JXTable();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         newMenuItem = new javax.swing.JMenuItem();
@@ -86,19 +77,6 @@ public class Main extends javax.swing.JFrame {
         fillerLabel.setText(" ");
         urlToolBar.add(fillerLabel);
 
-        outputScrollPane.setAlignmentX(0.0F);
-        outputScrollPane.setAlignmentY(0.0F);
-        outputScrollPane.setMaximumSize(new java.awt.Dimension(this.getSize()));
-        outputScrollPane.setPreferredSize(new java.awt.Dimension(this.getSize()));
-
-        outputTextArea.setColumns(20);
-        outputTextArea.setEditable(false);
-        outputTextArea.setRows(5);
-        outputTextArea.setEnabled(false);
-        outputTextArea.setMaximumSize(new java.awt.Dimension(this.getSize()));
-        outputTextArea.setPreferredSize(new java.awt.Dimension(this.getSize()));
-        outputScrollPane.setViewportView(outputTextArea);
-
         statusLabel.setText("Status");
         statusBar.add(statusLabel);
 
@@ -108,8 +86,31 @@ public class Main extends javax.swing.JFrame {
         crawledLabel.setText("Crawled: 0");
         statusBar.add(crawledLabel);
 
-        crawlingLabel.setText("crawling");
-        statusBar.add(crawlingLabel);
+        model = new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Url", "Progress"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, javax.swing.JProgressBar.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        };
+        jXTable1.setModel(model);
+        jXTable1.setEditable(false);
+        jXTable1.setRolloverEnabled(false);
+        jXTable1.setRowSelectionAllowed(false);
+        jXTable1.setShowGrid(true);
+        jXTable1.setSortable(false);
+        jXTable1.setSortsOnUpdates(false);
+        jScrollPane1.setViewportView(jXTable1);
+        jXTable1.getColumn("Progress").setCellRenderer(new ProgRenderer());
 
         fileMenu.setText("File");
 
@@ -137,22 +138,22 @@ public class Main extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(urlToolBar, javax.swing.GroupLayout.PREFERRED_SIZE, 475, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(outputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE)
             .addComponent(statusBar, javax.swing.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE)
+            .addComponent(urlToolBar, javax.swing.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(urlToolBar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(outputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 211, Short.MAX_VALUE)
-                .addGap(0, 0, 0)
+                .addGap(1, 1, 1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 204, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((screenSize.width-477)/2, (screenSize.height-330)/2, 477, 330);
+        setBounds((screenSize.width-491)/2, (screenSize.height-330)/2, 491, 330);
     }// </editor-fold>//GEN-END:initComponents
 
     private void crawlToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crawlToggleButtonActionPerformed
@@ -169,14 +170,13 @@ public class Main extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(rootPane, "Invalid URL\n Either there is no URL, or it doesn't start with http(s)://");
                 btn.setSelected(false);
             } else {
-                Db db = new Db();
+                Db db = DbSingleton.getDb();
                 db.insertPending(urlField.getText());
                 toggled = true;
                 c.execute();
             }
         } else {
             c.cancel(true);
-            updateStatus();
             toggled = false;
         }
     }//GEN-LAST:event_crawlToggleButtonActionPerformed
@@ -197,15 +197,14 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenuItem closeMenuItem;
     private javax.swing.JToggleButton crawlToggleButton;
     private static javax.swing.JLabel crawledLabel;
-    private static javax.swing.JLabel crawlingLabel;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JPopupMenu.Separator fileMenuSeparator1;
     private javax.swing.JLabel fillerLabel;
+    private javax.swing.JScrollPane jScrollPane1;
+    private org.jdesktop.swingx.JXTable jXTable1;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem newMenuItem;
     private javax.swing.JMenuItem openMenuItem;
-    private javax.swing.JScrollPane outputScrollPane;
-    private static javax.swing.JTextArea outputTextArea;
     private static javax.swing.JLabel pendingLabel;
     private javax.swing.JMenuItem saveMenuItem;
     private org.jdesktop.swingx.JXStatusBar statusBar;
@@ -216,74 +215,4 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JToolBar urlToolBar;
     // End of variables declaration//GEN-END:variables
 
-    /**
-     *
-     * @return LinkedList<URL> a linked list with the URLs to crawl
-     */
-    public static HashSet<URL> getPending(){
-        return pending;
-    }
-
-    /**
-     * add an URL to the pending list
-     * @param URL
-     */
-    public static void addToPending(URL URL){
-        
-        if(!crawled.contains(URL)) {
-            pending.add(URL);
-            linksAddedToPending++;
-        } else {
-            linksFound++;
-        }
-    }
-
-    /**
-     * Remove first object
-     */
-    public static void removeFromPending(URL url){
-        pending.remove(url);
-    }
-
-    /**
-     * Adds an URL to the crawled list
-     * @param URL a URL to add
-     */
-    public static void addToCrawled(URL URL){
-        crawled.add(URL);
-    }
-
-    /**
-     * Update the output.
-     * Truncates the output to 9 lines, currently
-     * @param line a line to add
-     */
-    public static void appendToOutputArea(String line) {
-        if(output.size() > 9){
-            output.removeFirst();
-        }
-        output.addLast(line);
-
-        String listOutput = "";
-        for(int i = 0; i < output.size();i++){
-            listOutput = listOutput +"\n"+ output.get(i);
-        }
-        outputTextArea.setText(listOutput);
-    }
-
-    /**
-     * Update the status of the lists
-     */
-    public static void updateStatus(){
-        pendingLabel.setText("Pending: "+pending.size());
-        crawledLabel.setText("Crawled: "+crawled.size());
-    }
-
-    /**
-     * Let the user know the current URL we are crawling
-     * @param current
-     */
-    public static void setCurrentlyCrawling(String current){
-        crawlingLabel.setText(current);
-    }
 }
