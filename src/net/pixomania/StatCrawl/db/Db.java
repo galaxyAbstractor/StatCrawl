@@ -12,6 +12,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.pixomania.StatCrawl.stats.City;
@@ -115,15 +116,18 @@ public class Db {
      * Get the first item on the list
      * @return the URL as a String
      */
-    public synchronized String getFirstPending() {
-
+    public synchronized LinkedList<String> getFirstTenPending() {
+        LinkedList<String> list = new LinkedList<String>();
         try {
             String query = "SELECT url FROM pending";
             PreparedStatement statement = conn.prepareStatement(query); 
-            statement.setMaxRows(1); 
+            statement.setMaxRows(10); 
             ResultSet rs = statement.executeQuery();
-            rs.next();
-            return rs.getString("url");
+            while(rs.next()){
+                list.add(rs.getString("url"));
+            }
+            System.out.println("Fetched "+list.size()+" links");
+            return list;
         } catch (SQLException ex) {
             return null;
         }

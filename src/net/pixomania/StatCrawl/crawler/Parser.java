@@ -72,7 +72,8 @@ public class Parser extends SwingWorker<Void, Void>{
                 System.out.println("Malformed URL");
                 continue;
             }
-
+            
+            
             // Add the URL to the pending list
             pending.add(url1); 
 
