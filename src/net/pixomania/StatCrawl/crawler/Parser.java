@@ -37,19 +37,19 @@ public class Parser extends SwingWorker<Void, Void>{
     protected Void doInBackground() throws Exception {
          java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Main.model.addRow(new Object[]{url, new JProgressBar()});
+                CrawlView.model.addRow(new Object[]{url, new JProgressBar()});
             }
         });
         
         rowIndex = 0;
-        for(int i = 0;i<Main.model.getRowCount();i++){
-            if(Main.model.getValueAt(i, 0).equals(url)){
+        for(int i = 0;i<CrawlView.model.getRowCount();i++){
+            if(CrawlView.model.getValueAt(i, 0).equals(url)){
                 rowIndex = i;
                 break;
             }
         }
         
-        progress = (JProgressBar) Main.model.getValueAt(rowIndex, 1);
+        progress = (JProgressBar) CrawlView.model.getValueAt(rowIndex, 1);
         
         Db db = DbSingleton.getDb();
         ArrayList<URL> pending = new ArrayList<URL>();
@@ -113,7 +113,7 @@ public class Parser extends SwingWorker<Void, Void>{
 
         db.insertHost(new URL(url).getHost());
 
-        Main.model.removeRow(rowIndex);
+        CrawlView.model.removeRow(rowIndex);
         System.out.println("Removed parser");
         return null;
     }

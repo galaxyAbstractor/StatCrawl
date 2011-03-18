@@ -64,7 +64,7 @@ public class Crawler extends SwingWorker<Void, Void> {
                 
             }
             
-        } while((Main.toggled != false));
+        } while((CrawlView.toggled != false));
         return null;
     }
     

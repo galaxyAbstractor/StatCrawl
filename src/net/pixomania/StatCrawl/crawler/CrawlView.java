@@ -2,26 +2,28 @@ package net.pixomania.StatCrawl.crawler;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
 import javax.swing.JToggleButton;
 import javax.swing.table.DefaultTableModel;
 import net.pixomania.StatCrawl.db.Db;
 import net.pixomania.StatCrawl.db.DbSingleton;
+import net.pixomania.StatCrawl.stats.StatView;
 
 /**
  *
  * @author vigge
  */
-public class Main extends javax.swing.JFrame {
+public class CrawlView extends javax.swing.JFrame {
 
     public static boolean toggled = false;
     public static DefaultTableModel model;
+    
+    private StatView statView;
     
     static {
        System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
     }
     /** Creates new form Main */
-    public Main() {
+    public CrawlView() {
         initComponents();
     }
 
@@ -53,8 +55,9 @@ public class Main extends javax.swing.JFrame {
         fileMenuSeparator1 = new javax.swing.JPopupMenu.Separator();
         closeMenuItem = new javax.swing.JMenuItem();
         toolsMenu = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         urlToolBar.setFloatable(false);
         urlToolBar.setRollover(true);
@@ -130,6 +133,15 @@ public class Main extends javax.swing.JFrame {
         menuBar.add(fileMenu);
 
         toolsMenu.setText("Tools");
+
+        jMenuItem1.setText("Open statview");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        toolsMenu.add(jMenuItem1);
+
         menuBar.add(toolsMenu);
 
         setJMenuBar(menuBar);
@@ -182,13 +194,22 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_crawlToggleButtonActionPerformed
 
     /**
+     * Create a new StatView object if it doesn't exist already and show it
+     * @param evt 
+     */
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        if(statView == null) statView = new StatView();
+        statView.setVisible(true);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    /**
     * @param args the command line arguments
     */
     public static void main(String args[]) {
         JFrame.setDefaultLookAndFeelDecorated(true);
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Main().setVisible(true);
+                new CrawlView().setVisible(true);
             }
         });
     }
@@ -200,6 +221,7 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenu fileMenu;
     private javax.swing.JPopupMenu.Separator fileMenuSeparator1;
     private javax.swing.JLabel fillerLabel;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
     private org.jdesktop.swingx.JXTable jXTable1;
     private javax.swing.JMenuBar menuBar;

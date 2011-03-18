@@ -9,13 +9,13 @@ import net.pixomania.StatCrawl.db.DbSingleton;
  *
  * @author galaxyAbstractor
  */
-public class Main extends javax.swing.JFrame {
+public class StatView extends javax.swing.JFrame {
     static {
       System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
     }
     private Db db = DbSingleton.getDb();
     /** Creates new form Main */
-    public Main() {
+    public StatView() {
         initComponents();
               
     }
@@ -55,7 +55,7 @@ public class Main extends javax.swing.JFrame {
         }
         jXTreeTable1 = new org.jdesktop.swingx.JXTreeTable(new LocationTreeTableModel(root));
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jScrollPane1.setViewportView(jXTreeTable1);
 
@@ -94,7 +94,7 @@ public class Main extends javax.swing.JFrame {
         JFrame.setDefaultLookAndFeelDecorated(true);
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Main().setVisible(true);
+                new StatView().setVisible(true);
             }
         });
     }

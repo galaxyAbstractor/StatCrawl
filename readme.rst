@@ -4,6 +4,7 @@ Country database from http://ipinfodb.com/ip_database.php is needed (Complete (c
 
 Changelog
 =======
+* Mar 18, 2011: Changed the way of how links to crawl are fetched, they are now fetched in batches of 10. Added a way to open the statview frame.
 * Feb 12, 2011: Parser is in own thread. Table for progress of every parser thread running.
 * Jan 30, 2011: Re-organisation of files and packages. Stat frame started. JXTreeTable added for Country stats (wow this one was a hard one to figure out lol). Country stats improved.
 * Jan 22, 2011: Added country, city and region stats for the IPs. 
