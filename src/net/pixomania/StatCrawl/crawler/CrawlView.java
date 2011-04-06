@@ -4,8 +4,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 import javax.swing.table.DefaultTableModel;
-import net.pixomania.StatCrawl.db.Db;
-import net.pixomania.StatCrawl.db.DbSingleton;
+import net.pixomania.StatCrawl.db.DbQueue;
+import net.pixomania.StatCrawl.db.Operation;
+import net.pixomania.StatCrawl.db.QueueItem;
 import net.pixomania.StatCrawl.stats.StatView;
 
 /**
@@ -14,8 +15,13 @@ import net.pixomania.StatCrawl.stats.StatView;
  */
 public class CrawlView extends javax.swing.JFrame {
 
-    public static boolean toggled = false;
-    public static DefaultTableModel model;
+    private static DefaultTableModel model;
+    
+    // Create a new crawler
+    private Crawler c = new Crawler();
+        
+    // Create the DbQuery
+    private DbQueue dq = new DbQueue();
     
     private StatView statView;
     
@@ -27,6 +33,13 @@ public class CrawlView extends javax.swing.JFrame {
         initComponents();
     }
 
+    /**
+     * Return the model that we use in the table
+     * @return DefaultTableModel
+     */
+    public static DefaultTableModel getModel(){
+        return model;
+    }
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -172,24 +185,28 @@ public class CrawlView extends javax.swing.JFrame {
         // Fetch the button from the event
         JToggleButton btn = (JToggleButton) evt.getSource();
 
-        // Create a new crawler
-        Crawler c = new Crawler();
-
         // If the button is selected we should run, if the button get's untoggled we should cancel
         if(btn.isSelected()){
+            // Check that the URL starts with a valid protocol
             if(!urlField.getText().startsWith("http://") &&
                !urlField.getText().startsWith("https://")) {
                 JOptionPane.showMessageDialog(rootPane, "Invalid URL\n Either there is no URL, or it doesn't start with http(s)://");
                 btn.setSelected(false);
             } else {
-                Db db = DbSingleton.getDb();
-                db.insertPending(urlField.getText());
-                toggled = true;
-                c.execute();
+                // URL seems valid, add it to the pending table
+                DbQueue.addQuery(new QueueItem(urlField.getText(), Operation.PENDING));
+                
+                // We reset and start the DbQueue
+                dq.resetQueue();
+                dq.start();
+                
+                // Reset and start the Crawler.
+                c.resetCrawler();
+                c.start();
             }
         } else {
-            c.cancel(true);
-            toggled = false;
+            // Stop the crawler
+            c.stopCrawler();
         }
     }//GEN-LAST:event_crawlToggleButtonActionPerformed
 

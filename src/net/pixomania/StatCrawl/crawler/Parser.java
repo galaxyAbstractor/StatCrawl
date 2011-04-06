@@ -1,19 +1,15 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package net.pixomania.StatCrawl.crawler;
 
-import java.net.MalformedURLException;
+import java.net.InetAddress;
 import java.net.URL;
-import java.util.ArrayList;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
-import net.pixomania.StatCrawl.db.Db;
-import net.pixomania.StatCrawl.db.DbSingleton;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import javax.swing.table.DefaultTableModel;
+import net.pixomania.StatCrawl.crawler.stat.LinksStat;
+import net.pixomania.StatCrawl.db.DbQueue;
+import net.pixomania.StatCrawl.db.Operation;
+import net.pixomania.StatCrawl.db.QueueItem;
+import org.jsoup.nodes.Document;
 
 /**
  *
@@ -21,99 +17,60 @@ import org.jsoup.select.Elements;
  */
 public class Parser extends SwingWorker<Void, Void>{
 
-    private Elements links;
+    private Document html;
     private String url;
     private JProgressBar progress;
-    private double linkCount;
-    private double currentLoop;
     private int rowIndex;
+    private DefaultTableModel model = CrawlView.getModel();
     
-    public Parser(Elements links, String url){
-        this.links = links;
+    /**
+     * Creates a new parser
+     * @param html the HTML of the URL
+     * @param url the URL
+     */
+    public Parser(Document html, String url){
+        this.html = html;
         this.url = url;
     }
     
     @Override
     protected Void doInBackground() throws Exception {
-         java.awt.EventQueue.invokeLater(new Runnable() {
+        // Add the parser to the table so we can monitor its status 
+        java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                CrawlView.model.addRow(new Object[]{url, new JProgressBar()});
+                model.addRow(new Object[]{url, new JProgressBar()});
             }
         });
         
+        // Get its rowindex so we can alter it later on. NEEDS TO BE CHANGED!
         rowIndex = 0;
-        for(int i = 0;i<CrawlView.model.getRowCount();i++){
-            if(CrawlView.model.getValueAt(i, 0).equals(url)){
+        for(int i = 0;i<model.getRowCount();i++){
+            if(model.getValueAt(i, 0).equals(url)){
                 rowIndex = i;
                 break;
             }
         }
         
-        progress = (JProgressBar) CrawlView.model.getValueAt(rowIndex, 1);
+        progress = (JProgressBar) model.getValueAt(rowIndex, 1);
         
-        Db db = DbSingleton.getDb();
-        ArrayList<URL> pending = new ArrayList<URL>();
-        
-        linkCount = links.size()*2;
-        currentLoop = 0;
-        
-        for (Element link : links) {
-                
-            String linkURL = link.attr("abs:href");
-
-            // Make sure we have an URL, otherwise we are stuck here forever
-            if(linkURL.isEmpty()) continue;
-            if(!linkURL.startsWith("http")) continue;
-
-            URL url1;
-            try {
-                url1 = new URL(linkURL);
-            } catch(MalformedURLException e){
-                System.out.println("Malformed URL");
-                continue;
-            }
-            
-            
-            // Add the URL to the pending list
-            pending.add(url1); 
-
-            // Update the status
-            // Main.updateStatus();
-            // Main.linksTotal++;
-            
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    progress.setValue((int) ((currentLoop++/linkCount)*100));
-
-                    //Main.model.setValueAt(progress, rowIndex, 1);
-                }
-            });
-           
-            
-        }
-
-        for(URL pUrl : pending){
-           db.insertPending(pUrl.toString());
-           
-           java.awt.EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    progress.setValue((int) ((currentLoop++/linkCount)*100));
-
-                    //Main.model.setValueAt(progress, rowIndex, 1);
-                }
-            });
-        }
-
-        pending.clear();
+       
 
         // This URL is crawled and does not need to be crawled again
-        db.insertCrawled(url); 
-
-        db.insertIP(new URL(url).getHost());
-
-        db.insertHost(new URL(url).getHost());
-
-        CrawlView.model.removeRow(rowIndex);
+        DbQueue.addQuery(new QueueItem(url, Operation.CRAWLED));
+        
+        // Creates the parser that parses the links
+        Stat linkparser = new LinksStat(html);
+        linkparser.start();
+        
+        // Host and IP stats
+        String host = new URL(url).getHost();
+        String ip = InetAddress.getByName(host).getHostAddress();
+        DbQueue.addQuery(new QueueItem(ip, Operation.IP));
+        
+        DbQueue.addQuery(new QueueItem(host, Operation.HOST));
+        
+        // Remove the row. NEEDS TO BE CHANGED!
+        model.removeRow(rowIndex);
         System.out.println("Removed parser");
         return null;
     }

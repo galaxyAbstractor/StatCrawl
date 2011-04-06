@@ -47,14 +47,87 @@ public class Db {
         }
     }
     
+//    public void query(QueueItem item){
+//        if(item.checkDuplicateQuery == null){
+//            try {
+//                Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+//                ResultSet rs = st.executeQuery(item.mainQuery);
+//            } catch (SQLException ex) {
+//                Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        } else if(item.checkDuplicateQuery != null && item.ifDuplicateQuery == null) {
+//            try {
+//                Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+//                ResultSet rs = st.executeQuery(item.checkDuplicateQuery);
+//
+//                rs.last();
+//                int rowcount = rs.getRow();
+//
+//                if(rowcount == 0){
+//                    Statement insertStatement = conn.createStatement();
+//
+//                    insertStatement.executeUpdate(item.mainQuery);
+//
+//                } else {
+//                    //System.out.println("Already crawled");
+//                }  
+//            
+//            } catch (SQLException ex) {
+//                Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        } else {
+//            try {
+//            
+//            Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+//            ResultSet rs = st.executeQuery(query);
+//            
+//            rs.last();
+//            int rowcount = rs.getRow();
+//            
+//            if(rowcount == 0){
+//                String ip = InetAddress.getByName(host).getHostAddress();
+//                query = "SELECT * FROM ip WHERE ip = '"+ip+"'";
+//
+//                try {
+//                    st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+//                    rs = st.executeQuery(query);
+//
+//                    rs.last();
+//                    rowcount = rs.getRow();
+//
+//                    if(rowcount == 0){
+//                        Statement insertStatement = conn.createStatement();
+//                        query = "INSERT INTO ip (ip, count) VALUES ('"+ ip +"',1)";
+//                        insertLocation(ip);
+//                        insertStatement.executeUpdate(query);
+//
+//                    } else {
+//                        Statement updateStatement = conn.createStatement();
+//                        query = "UPDATE ip SET count = count+1 WHERE ip = '"+ip+"'";
+//
+//                        updateStatement.executeUpdate(query);
+//                    }
+//
+//
+//                } catch (SQLException ex) {
+//                    Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//        } catch (UnknownHostException ex) {
+//            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (SQLException ex) {
+//            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        }
+//    }
     /**
      * Add an URL to the pending list, as long as it doesn't already exist as crawled
      * @param url the URL to add
      */
     public synchronized void insertPending(String url){
-        String md5 = getMD5Digest(url.getBytes());
+        String md5 = Md5.getMD5Digest(url.getBytes());
         String query = "SELECT * FROM crawled WHERE md5 = '"+md5+"'";
-        
+           
         try {
             Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ResultSet rs = st.executeQuery(query);
@@ -84,7 +157,7 @@ public class Db {
      */
     public synchronized void insertCrawled(String url){
         
-        String md5 = getMD5Digest(url.getBytes());
+        String md5 = Md5.getMD5Digest(url.getBytes());
         String query = "INSERT IGNORE INTO crawled (md5, url) VALUES ('"+ md5 +"','"+ url +"')";
         
         try {        
@@ -100,7 +173,7 @@ public class Db {
      * @param url the URL to remove
      */
     public synchronized void removePending(String url){
-        String md5 = getMD5Digest(url.getBytes());
+        String md5 = Md5.getMD5Digest(url.getBytes());
         String query = "DELETE FROM pending WHERE md5 = '"+md5+"'";
         
         try {        
@@ -340,37 +413,7 @@ public class Db {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    /**
-     * Generate an md5 hash
-     * @param buffer Byte-array of a String
-     * @return an md5 hash as a String
-     */
-    private String getMD5Digest(byte[] buffer) {
-        String resultHash = null;
-        try {
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
-
-            byte[] result = new byte[md5.getDigestLength()];
-            md5.reset();
-            md5.update(buffer);
-            result = md5.digest();
-
-            StringBuilder buf = new StringBuilder(result.length * 2);
-
-            for (int i = 0; i < result.length; i++) {
-                int intVal = result[i] & 0xff;
-                if (intVal < 0x10) {
-                    buf.append("0");
-                }
-                buf.append(Integer.toHexString(intVal));
-            }
-
-            resultHash = buf.toString();
-        } catch (NoSuchAlgorithmException e) {
-        }
-        return resultHash;
-    }
+   
 
     public ArrayList<Location> getCountryStats() {
         ArrayList<Location> countryList = new ArrayList<Location>();

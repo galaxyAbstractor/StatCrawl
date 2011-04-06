@@ -1,44 +1,74 @@
 package net.pixomania.StatCrawl.crawler;
 
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
-import javax.swing.SwingWorker;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.pixomania.StatCrawl.db.Db;
+import net.pixomania.StatCrawl.db.DbQueue;
 import net.pixomania.StatCrawl.db.DbSingleton;
+import net.pixomania.StatCrawl.db.Operation;
+import net.pixomania.StatCrawl.db.QueueItem;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 
 
 /**
- *
- * @author vigge
+ * The Crawler thread. This fetches 10 links from the pending table and
+ * starts a parser for each one of them.
+ * @author galaxyAbstractor
  */
-public class Crawler extends SwingWorker<Void, Void> {
+public class Crawler extends Thread {
+    
+    private boolean run = true;
+    
+    /**
+     * Indicates to the crawler that it needs to stop
+     */
+    public void stopCrawler(){
+        run = false;
+    }
+    
+    /**
+     * Resets the run boolean back to true so we can restart the crawler
+     */
+    public void resetCrawler(){
+        run = true;
+    }
     
     @Override
-    protected Void doInBackground() throws Exception {
+    public void run() {
         Db db = DbSingleton.getDb();
         Queue<String> pending = new LinkedList<String>();
         // Crawl and parse for links until there is no more pending URL's
-        do {
+        while(run){
             System.out.println("run");
-            // Get the first URL in the pending Set
+            // Get the first ten URLs from the database
             pending = db.getFirstTenPending();
             
+            // If the pending list is empty, there may still be parsers that 
+            // parses. Wait 5 seconds, then start from the beginning of the loop
             if(pending.isEmpty()){
-                Thread.sleep(5000);
+                try {
+                    this.sleep(5000);
+                } catch (InterruptedException ex) {
+                    run = false;
+                }
                 continue;
             }
             
             while(!pending.isEmpty()){
+                System.out.println(pending.size() + " more to crawl");
+                
+                // Get the first element in the queue
                 String url = pending.poll();
+                
                 // Remove the first URL from the pending list
-                db.removePending(url);
+                DbQueue.addQuery(new QueueItem(url, Operation.REMOVE));
 
                 // we have to make sure it's HTML output, not an image, before we parse it as HTML
                 URL url2;
@@ -48,24 +78,28 @@ public class Crawler extends SwingWorker<Void, Void> {
                         System.out.println("NOT HTML");
                         continue;
                     }
-                } catch(MalformedURLException e){
+                } catch (IOException ex) {
                     System.out.println("Malformed URL");
                     continue;
                 }
 
                 // Connect and get the links from the HTML
-
-                Document doc = Jsoup.connect(url).userAgent("StatCrawl").get();
-                Elements links = doc.select("a[href]");
-
-                System.out.println("Started parser");
-                Parser parser = new Parser(links, url);
-                parser.execute();
+                Document html;
+                try {
+                    html = Jsoup.connect(url).userAgent("StatCrawl").get();
+                    
+                    System.out.println("Started parser");
+                    Parser parser = new Parser(html, url);
+                    parser.execute();
+                } catch (IOException ex) {
+                    Logger.getLogger(Crawler.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 
             }
-            
-        } while((CrawlView.toggled != false));
-        return null;
+        }
+        System.out.println("Crawler has stopped");
+        DbQueue.stopQueue();
+        
     }
     
     
