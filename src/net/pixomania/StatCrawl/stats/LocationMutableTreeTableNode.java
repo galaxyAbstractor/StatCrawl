@@ -1,14 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package net.pixomania.StatCrawl.stats;
 
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 
 /**
- *
+ * This class handles the different nodes in the TreeTable in SwingX. It's based
+ * upon the DefaultMutableTreeTableNode
  * @author galaxyAbstractor
  */
 public class LocationMutableTreeTableNode extends DefaultMutableTreeTableNode {
@@ -17,6 +13,10 @@ public class LocationMutableTreeTableNode extends DefaultMutableTreeTableNode {
         super();
     }
     
+    /**
+     * Create a new node
+     * @param userObject the node to create
+     */
     public LocationMutableTreeTableNode(Object userObject) {
         super(userObject);
     }
@@ -25,11 +25,20 @@ public class LocationMutableTreeTableNode extends DefaultMutableTreeTableNode {
         super(userObject, allowChildren);
     }
     
+    /**
+     * Get the number of columns
+     * @return 2 (we only need 2 in the location, one for name and one for count)
+     */
     @Override
     public int getColumnCount() {
         return 2;
     }
     
+    /**
+     * Get the value
+     * @param column The column of the data
+     * @return a value (Name or Count)
+     */
     @Override
     public Object getValueAt(int column) {
         Location l = (Location) getUserObject();
@@ -45,6 +54,11 @@ public class LocationMutableTreeTableNode extends DefaultMutableTreeTableNode {
         return null;
     }
     
+    /**
+     * Disable editing
+     * @param column the column index 
+     * @return false
+     */
     @Override
     public boolean isEditable(int column) {
         return false;

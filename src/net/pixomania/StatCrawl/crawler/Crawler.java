@@ -96,6 +96,16 @@ public class Crawler extends Thread {
                 }
                 
             }
+            
+            // Wait for the DbQueue to reach zero before doing next batch of
+            // Crawls
+            while(DbQueue.getSize() != 0){
+                try {
+                    this.sleep(5000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Crawler.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }
         System.out.println("Crawler has stopped");
         DbQueue.stopQueue();

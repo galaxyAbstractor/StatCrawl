@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import org.jsoup.nodes.Element;
 import net.pixomania.StatCrawl.crawler.Stat;
 import net.pixomania.StatCrawl.db.DbQueue;
-import net.pixomania.StatCrawl.db.Md5;
 import net.pixomania.StatCrawl.db.Operation;
 import net.pixomania.StatCrawl.db.QueueItem;
 import org.jsoup.nodes.Document;

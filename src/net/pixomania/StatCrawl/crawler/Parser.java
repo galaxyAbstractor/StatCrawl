@@ -9,6 +9,7 @@ import net.pixomania.StatCrawl.crawler.stat.LinksStat;
 import net.pixomania.StatCrawl.db.DbQueue;
 import net.pixomania.StatCrawl.db.Operation;
 import net.pixomania.StatCrawl.db.QueueItem;
+import net.pixomania.statcrawl.crawler.stat.ImageStat;
 import org.jsoup.nodes.Document;
 
 /**
@@ -60,7 +61,10 @@ public class Parser extends SwingWorker<Void, Void>{
         
         // Creates the parser that parses the links
         Stat linkparser = new LinksStat(html);
-        linkparser.start();
+        linkparser.parse();
+        
+        Stat imageparser = new ImageStat(html);
+        imageparser.parse();
         
         // Host and IP stats
         String host = new URL(url).getHost();

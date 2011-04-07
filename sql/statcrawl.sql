@@ -3,11 +3,17 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jan 30, 2011 at 05:16 PM
+-- Generation Time: Apr 07, 2011 at 07:15 PM
 -- Server version: 5.5.8
 -- PHP Version: 5.3.5
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
 
 --
 -- Database: `statcrawl`
@@ -50,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `crawled` (
   `url` varchar(2000) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `md5` (`md5`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1485 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=97 ;
 
 -- --------------------------------------------------------
 
@@ -61,6 +67,18 @@ CREATE TABLE IF NOT EXISTS `crawled` (
 CREATE TABLE IF NOT EXISTS `hosts` (
   `host` varchar(2000) NOT NULL,
   `count` int(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `images`
+--
+
+CREATE TABLE IF NOT EXISTS `images` (
+  `count` int(11) NOT NULL,
+  `size` int(11) NOT NULL,
+  `extension` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -86,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `pending` (
   `url` varchar(2000) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `md5` (`md5`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3284 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12277 ;
 
 -- --------------------------------------------------------
 

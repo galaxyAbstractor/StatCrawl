@@ -36,6 +36,14 @@ public class DbQueue extends Thread {
         run = true;
     }
     
+    /**
+     * Returns the size of the queue
+     * @return int the size
+     */
+    public static int getSize(){
+        return pendingQueries.size();
+    }
+    
     private static boolean run = true;
     
     @Override
@@ -62,6 +70,9 @@ public class DbQueue extends Thread {
                         break;
                     case REMOVE:
                         db.removePending(item.data);
+                        break;
+                    case IMAGE:
+                        db.insertImage(item.data);
                         break;
                 }
                  
