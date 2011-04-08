@@ -4,6 +4,7 @@ Country database from http://ipinfodb.com/ip_database.php is needed (Complete (c
 
 Changelog
 =======
+* Apr 08, 2011: Started implementation of a Host/node environment. A server that should handle database, and clients that crawls
 * Apr 07, 2011: Image stats added. Changed the Stat interface to normal object instead of Thread. Random nullpointer in "Thread-2" occuring...
 * Apr 06, 2011: Major revamp. A sort of "plugable" parse system implemented, but not fully done. A database queue system was implemented. This slows the crawling down a bit, but it keeps the stat more accurate. Some commenting and documentation.
 * Mar 18, 2011: Changed the way of how links to crawl are fetched, they are now fetched in batches of 10. Added a way to open the statview frame.
