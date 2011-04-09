@@ -1,23 +1,19 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
- * ClientView.java
- *
- * Created on 2011-apr-08, 12:22:28
- */
 package net.pixomania.StatCrawl.client;
 
+import com.esotericsoftware.kryonet.Client;
+import java.io.IOException;
 import javax.swing.JFrame;
+import javax.swing.JToggleButton;
+import javax.swing.table.DefaultTableModel;
+import net.pixomania.StatCrawl.crawler.ProgRenderer;
 
 /**
  *
- * @author Administrator
+ * @author galaxyAbstractor
  */
 public class ClientView extends javax.swing.JFrame {
-
+    private Client client;
+    private static DefaultTableModel model;
     static {
        System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
     }
@@ -26,6 +22,13 @@ public class ClientView extends javax.swing.JFrame {
         initComponents();
     }
 
+    /**
+     * Return the model that we use in the table
+     * @return DefaultTableModel
+     */
+    public static DefaultTableModel getModel(){
+        return model;
+    }
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -36,20 +39,33 @@ public class ClientView extends javax.swing.JFrame {
     private void initComponents() {
 
         jToolBar1 = new javax.swing.JToolBar();
+        jLabel3 = new javax.swing.JLabel();
+        jTextField3 = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
         jToggleButton1 = new javax.swing.JToggleButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jXTable1 = new org.jdesktop.swingx.JXTable();
+        statusBar = new org.jdesktop.swingx.JXStatusBar();
+        statusLabel = new javax.swing.JLabel();
+        pendingLabel = new javax.swing.JLabel();
+        crawledLabel = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("StatCrawl Client");
 
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
+
+        jLabel3.setText("ID:");
+        jToolBar1.add(jLabel3);
+        jToolBar1.add(jTextField3);
 
         jLabel1.setText("Host:");
         jToolBar1.add(jLabel1);
@@ -70,6 +86,37 @@ public class ClientView extends javax.swing.JFrame {
         });
         jToolBar1.add(jToggleButton1);
 
+        model = new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Url", "Progress"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, javax.swing.JProgressBar.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        };
+        jXTable1.setModel(model);
+        jXTable1.setSortable(false);
+        jXTable1.setSortsOnUpdates(false);
+        jScrollPane1.setViewportView(jXTable1);
+        jXTable1.getColumn("Progress").setCellRenderer(new ProgRenderer());
+
+        statusLabel.setText("Status");
+        statusBar.add(statusLabel);
+
+        pendingLabel.setText("Pending: 0");
+        statusBar.add(pendingLabel);
+
+        crawledLabel.setText("Crawled: 0");
+        statusBar.add(crawledLabel);
+
         jMenu1.setText("File");
 
         jMenuItem1.setText("Quit");
@@ -86,21 +133,43 @@ public class ClientView extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 841, Short.MAX_VALUE)
+            .addComponent(statusBar, javax.swing.GroupLayout.DEFAULT_SIZE, 841, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 841, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(234, Short.MAX_VALUE))
+                .addGap(0, 0, 0)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
+                .addComponent(statusBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((screenSize.width-416)/2, (screenSize.height-338)/2, 416, 338);
+        setBounds((screenSize.width-857)/2, (screenSize.height-406)/2, 857, 406);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        // TODO add your handling code here:
+         // Fetch the button from the event
+        JToggleButton btn = (JToggleButton) evt.getSource();
+
+        // If the button is selected we should run, if the button get's untoggled we should cancel
+        if(btn.isSelected()){
+            try {
+                client = new Client();
+                client.setName(jTextField3.getText());
+                client.start();
+
+                client.connect(5000, "127.0.0.1", 1337, 1337);
+            } catch (IOException ex) {
+                
+            }
+
+        } else {
+            client.stop();
+        }
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     /**
@@ -116,15 +185,23 @@ public class ClientView extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private static javax.swing.JLabel crawledLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextField3;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToolBar jToolBar1;
+    private org.jdesktop.swingx.JXTable jXTable1;
+    private static javax.swing.JLabel pendingLabel;
+    private org.jdesktop.swingx.JXStatusBar statusBar;
+    private javax.swing.JLabel statusLabel;
     // End of variables declaration//GEN-END:variables
 }

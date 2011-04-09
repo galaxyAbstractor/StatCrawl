@@ -10,6 +10,10 @@
  */
 package net.pixomania.StatCrawl.server;
 
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.PrintStream;
 import javax.swing.JFrame;
 import javax.swing.JToggleButton;
 
@@ -18,7 +22,8 @@ import javax.swing.JToggleButton;
  * @author Administrator
  */
 public class ServerView extends javax.swing.JFrame {
-    
+    private PipedInputStream piOut;
+    private PipedOutputStream poOut;
     private DbServer server = new DbServer();
     static {
        System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
@@ -26,7 +31,16 @@ public class ServerView extends javax.swing.JFrame {
     
     /** Creates new form ServerView */
     public ServerView() {
-        initComponents();
+       initComponents();
+       try {
+            // Set up System.out
+            piOut = new PipedInputStream();
+            poOut = new PipedOutputStream(piOut);
+            System.setOut(new PrintStream(poOut, true));
+            new Console(piOut).start();
+        } catch (IOException ex) {
+            
+        }
     }
 
     /** This method is called from within the constructor to
@@ -40,7 +54,7 @@ public class ServerView extends javax.swing.JFrame {
 
         jToggleButton1 = new javax.swing.JToggleButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        console = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
@@ -60,10 +74,10 @@ public class ServerView extends javax.swing.JFrame {
             }
         });
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setEditable(false);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        console.setColumns(20);
+        console.setEditable(false);
+        console.setRows(5);
+        jScrollPane1.setViewportView(console);
 
         jLabel1.setText("Offline");
 
@@ -110,7 +124,7 @@ public class ServerView extends javax.swing.JFrame {
                     .addComponent(jToggleButton1)
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE))
         );
 
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -142,6 +156,7 @@ public class ServerView extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    public static javax.swing.JTextArea console;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
@@ -152,7 +167,6 @@ public class ServerView extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
 }
