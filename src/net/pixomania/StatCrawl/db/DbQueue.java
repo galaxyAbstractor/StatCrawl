@@ -74,6 +74,9 @@ public class DbQueue extends Thread {
                     case IMAGE:
                         db.insertImage(item.data);
                         break;
+                    case CRAWLING:
+                        db.insertCrawling(item.data);
+                        break;
                 }
                  
              } else {

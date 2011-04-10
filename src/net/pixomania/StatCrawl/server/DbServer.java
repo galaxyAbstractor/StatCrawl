@@ -32,11 +32,12 @@ public class DbServer {
                 }
                 @Override
                 public void connected (Connection connection) {
-                    System.out.println(connection.getID() + " connected");
+                    
                 }
             });
             
             Kryo kryo = server.getKryo();
+            
             kryo.register(QueueItem.class);
         } catch (IOException ex) {
             Logger.getLogger(DbServer.class.getName()).log(Level.SEVERE, null, ex);

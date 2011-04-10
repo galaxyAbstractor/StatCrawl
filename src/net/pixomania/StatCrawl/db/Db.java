@@ -1,6 +1,5 @@
 package net.pixomania.StatCrawl.db;
 
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
@@ -85,6 +84,31 @@ public class Db {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    /**
+     * Inserts links into the crawling table and removes them from the pending table
+     * @param url
+     */
+    public void insertCrawling(String url){
+        try {
+            // MD5 is used for unique identification of the URLs
+            String md5 = Md5.getMD5Digest(url.getBytes());
+            String query = "INSERT IGNORE INTO crawling (md5, url) VALUES ('" + md5 + "','" + url + "')";
+
+            // Creates and executes the above given query
+            Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet rs = st.executeQuery(query);
+
+            // Now remove it from pending
+            query = "DELETE FROM pending WHERE md5 = '"+md5+"'";
+
+            Statement deleteStatement = conn.createStatement();
+            deleteStatement.executeUpdate(query);
+
+        } catch (SQLException ex) {
+           
+        }
+    }
     
     /**
      * Insert a URL to the crawled table
@@ -97,7 +121,13 @@ public class Db {
         
         try {        
             Statement insertStatement = conn.createStatement();
-            insertStatement.executeUpdate(query); 
+            insertStatement.executeUpdate(query);
+
+            // Now remove it from crawling
+            query = "DELETE FROM crawling WHERE md5 = '"+md5+"'";
+
+            Statement deleteStatement = conn.createStatement();
+            deleteStatement.executeUpdate(query);
         } catch (SQLException ex) {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
         }

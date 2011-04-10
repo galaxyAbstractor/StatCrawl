@@ -159,9 +159,10 @@ public class ClientView extends javax.swing.JFrame {
         if(btn.isSelected()){
             try {
                 client = new Client();
-                client.setName(jTextField3.getText());
+                
                 client.start();
-
+                client.setName("hej");
+                
                 client.connect(5000, "127.0.0.1", 1337, 1337);
             } catch (IOException ex) {
                 

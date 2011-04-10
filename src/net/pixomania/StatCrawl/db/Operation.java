@@ -6,6 +6,6 @@ package net.pixomania.StatCrawl.db;
  */
 
 public enum Operation {
-    PENDING, CRAWLED, IP, HOST, REMOVE, IMAGE
+    PENDING, CRAWLED, IP, HOST, REMOVE, IMAGE, CRAWLING
 }
 
