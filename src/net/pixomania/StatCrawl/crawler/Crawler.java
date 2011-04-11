@@ -1,17 +1,19 @@
 package net.pixomania.StatCrawl.crawler;
 
 
+import com.esotericsoftware.kryonet.Client;
 import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.pixomania.StatCrawl.client.ClientSingleton;
 import net.pixomania.StatCrawl.db.Db;
 import net.pixomania.StatCrawl.db.DbQueue;
 import net.pixomania.StatCrawl.db.DbSingleton;
-import net.pixomania.StatCrawl.db.Operation;
-import net.pixomania.StatCrawl.db.QueueItem;
+import net.pixomania.StatCrawl.networking.Operation;
+import net.pixomania.StatCrawl.networking.QueueItem;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -25,6 +27,7 @@ import org.jsoup.nodes.Document;
 public class Crawler extends Thread {
     
     private boolean run = true;
+    private Client client = ClientSingleton.getClient();
     
     /**
      * Indicates to the crawler that it needs to stop

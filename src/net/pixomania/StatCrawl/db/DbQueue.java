@@ -1,5 +1,6 @@
 package net.pixomania.StatCrawl.db;
 
+import net.pixomania.StatCrawl.networking.QueueItem;
 import java.util.LinkedList;
 import java.util.Queue;
 

@@ -4,6 +4,7 @@ Country database from http://ipinfodb.com/ip_database.php is needed (Complete (c
 
 Changelog
 =======
+* Apr 11, 2011: Ability to chose ports and host. Some initial start of a way to send requests and responses.
 * Apr 10, 2011: Made a table for links currently in crawl-state.
 * Apr 09, 2011: Continued a bit with the host/node environment. Can now connect clients to server.
 * Apr 08, 2011: Started implementation of a Host/node environment. A server that should handle database, and clients that crawls

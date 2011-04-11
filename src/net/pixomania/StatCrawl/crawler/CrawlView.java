@@ -5,8 +5,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 import javax.swing.table.DefaultTableModel;
 import net.pixomania.StatCrawl.db.DbQueue;
-import net.pixomania.StatCrawl.db.Operation;
-import net.pixomania.StatCrawl.db.QueueItem;
+import net.pixomania.StatCrawl.networking.Operation;
+import net.pixomania.StatCrawl.networking.QueueItem;
 import net.pixomania.StatCrawl.stats.StatView;
 
 /**

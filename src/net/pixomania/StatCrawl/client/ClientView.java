@@ -1,12 +1,17 @@
 package net.pixomania.StatCrawl.client;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Client;
+import com.esotericsoftware.kryonet.Connection;
 import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 import javax.swing.table.DefaultTableModel;
 import net.pixomania.StatCrawl.crawler.ProgRenderer;
+import net.pixomania.StatCrawl.networking.Packet;
+import net.pixomania.StatCrawl.networking.QueueItem;
 
 /**
  *
@@ -159,14 +164,29 @@ public class ClientView extends javax.swing.JFrame {
         // If the button is selected we should run, if the button get's untoggled we should cancel
         if(btn.isSelected()){
          
-                client = new Client();
+                client = ClientSingleton.getClient();
                 
+                Kryo kryo = client.getKryo();
+                
+                // Register the classes we are sending
+                kryo.register(Packet.class);
+                kryo.register(QueueItem.class);
+
                 client.start();
                 client.setName("hej");
                 
                 try {
                     
                     client.connect(5000, hostField.getText(), Integer.parseInt(portField.getText()),Integer.parseInt(portField.getText()));
+                    client.addListener(new Listener() {
+                       @Override
+                       public void received (Connection connection, Object object) {
+                          if (object instanceof Packet) {
+                             Packet response = (Packet)object;
+                             
+                          }
+                       }
+                    });
                 } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(rootPane, "illegal port");
                     connectTgl.setSelected(false);

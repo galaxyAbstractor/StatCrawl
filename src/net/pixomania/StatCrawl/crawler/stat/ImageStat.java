@@ -9,8 +9,8 @@ import java.util.logging.Logger;
 import org.jsoup.nodes.Element;
 import net.pixomania.StatCrawl.crawler.Stat;
 import net.pixomania.StatCrawl.db.DbQueue;
-import net.pixomania.StatCrawl.db.Operation;
-import net.pixomania.StatCrawl.db.QueueItem;
+import net.pixomania.StatCrawl.networking.Operation;
+import net.pixomania.StatCrawl.networking.QueueItem;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 

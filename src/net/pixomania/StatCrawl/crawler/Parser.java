@@ -7,8 +7,8 @@ import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import net.pixomania.StatCrawl.crawler.stat.LinksStat;
 import net.pixomania.StatCrawl.db.DbQueue;
-import net.pixomania.StatCrawl.db.Operation;
-import net.pixomania.StatCrawl.db.QueueItem;
+import net.pixomania.StatCrawl.networking.Operation;
+import net.pixomania.StatCrawl.networking.QueueItem;
 import net.pixomania.statcrawl.crawler.stat.ImageStat;
 import org.jsoup.nodes.Document;
 
