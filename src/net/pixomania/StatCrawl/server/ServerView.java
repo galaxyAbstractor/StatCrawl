@@ -15,11 +15,12 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 
 /**
  *
- * @author Administrator
+ * @author galaxyAbstractor
  */
 public class ServerView extends javax.swing.JFrame {
     private PipedInputStream piOut;
@@ -29,6 +30,16 @@ public class ServerView extends javax.swing.JFrame {
        System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
     }
     
+    public static int getPort(){
+        try {
+            return Integer.parseInt(portField.getText());
+        } catch(Exception e) {
+            JOptionPane.showMessageDialog(null, "Illegal port number");
+            tglServerTgl.setSelected(false);
+            
+        }
+        return -1;
+    }
     /** Creates new form ServerView */
     public ServerView() {
        initComponents();
@@ -55,9 +66,9 @@ public class ServerView extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         console = new javax.swing.JTextArea();
         jToolBar1 = new javax.swing.JToolBar();
-        jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jToggleButton1 = new javax.swing.JToggleButton();
+        portLbl = new javax.swing.JLabel();
+        portField = new javax.swing.JTextField();
+        tglServerTgl = new javax.swing.JToggleButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -78,17 +89,17 @@ public class ServerView extends javax.swing.JFrame {
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
-        jLabel1.setText("Port:");
-        jToolBar1.add(jLabel1);
-        jToolBar1.add(jTextField1);
+        portLbl.setText("Port:");
+        jToolBar1.add(portLbl);
+        jToolBar1.add(portField);
 
-        jToggleButton1.setText("Toggle Server");
-        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+        tglServerTgl.setText("Toggle Server");
+        tglServerTgl.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton1ActionPerformed(evt);
+                tglServerTglActionPerformed(evt);
             }
         });
-        jToolBar1.add(jToggleButton1);
+        jToolBar1.add(tglServerTgl);
 
         jMenu1.setText("File");
 
@@ -132,7 +143,7 @@ public class ServerView extends javax.swing.JFrame {
         setBounds((screenSize.width-761)/2, (screenSize.height-338)/2, 761, 338);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+    private void tglServerTglActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tglServerTglActionPerformed
         // Fetch the button from the event
         JToggleButton btn = (JToggleButton) evt.getSource();
         
@@ -142,7 +153,7 @@ public class ServerView extends javax.swing.JFrame {
         } else {
             server.stop();
         }
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
+    }//GEN-LAST:event_tglServerTglActionPerformed
 
     /**
      * @param args the command line arguments
@@ -158,7 +169,6 @@ public class ServerView extends javax.swing.JFrame {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public static javax.swing.JTextArea console;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
@@ -168,8 +178,9 @@ public class ServerView extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToolBar jToolBar1;
+    private static javax.swing.JTextField portField;
+    private javax.swing.JLabel portLbl;
+    private static javax.swing.JToggleButton tglServerTgl;
     // End of variables declaration//GEN-END:variables
 }

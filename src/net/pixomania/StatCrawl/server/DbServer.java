@@ -19,29 +19,36 @@ public class DbServer {
     public void start(){
         try {
             server = new Server();
-            server.start();
-            server.bind(1337, 1337);
             
-            server.addListener(new Listener() {
-                @Override
-                public void received (Connection connection, Object object) {
-                   if (object instanceof QueueItem) {
-                      QueueItem request = (QueueItem)object;
-                      DbQueue.addQuery(request);   
-                   }
-                }
-                @Override
-                public void connected (Connection connection) {
-                    
-                }
-            });
-            
-            Kryo kryo = server.getKryo();
-            
-            kryo.register(QueueItem.class);
+            int port = ServerView.getPort();
+            if(port == -1) {
+                System.out.println("  Illegal port");
+            } else {
+                server.start();
+                server.bind(ServerView.getPort(), ServerView.getPort());
+
+                server.addListener(new Listener() {
+                    @Override
+                    public void received (Connection connection, Object object) {
+                       if (object instanceof QueueItem) {
+                          QueueItem request = (QueueItem)object;
+                          DbQueue.addQuery(request);   
+                       }
+                    }
+                    @Override
+                    public void connected (Connection connection) {
+
+                    }
+                });
+
+                Kryo kryo = server.getKryo();
+
+                kryo.register(QueueItem.class);
+            }
         } catch (IOException ex) {
             Logger.getLogger(DbServer.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
     }
     
     public void stop(){

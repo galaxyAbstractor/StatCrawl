@@ -3,6 +3,7 @@ package net.pixomania.StatCrawl.client;
 import com.esotericsoftware.kryonet.Client;
 import java.io.IOException;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 import javax.swing.table.DefaultTableModel;
 import net.pixomania.StatCrawl.crawler.ProgRenderer;
@@ -39,13 +40,13 @@ public class ClientView extends javax.swing.JFrame {
     private void initComponents() {
 
         jToolBar1 = new javax.swing.JToolBar();
-        jLabel3 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
-        jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jToggleButton1 = new javax.swing.JToggleButton();
+        hostLbl = new javax.swing.JLabel();
+        hostField = new javax.swing.JTextField();
+        portLbl = new javax.swing.JLabel();
+        portField = new javax.swing.JTextField();
+        urlLbl = new javax.swing.JLabel();
+        urlField = new javax.swing.JTextField();
+        connectTgl = new javax.swing.JToggleButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jXTable1 = new org.jdesktop.swingx.JXTable();
         statusBar = new org.jdesktop.swingx.JXStatusBar();
@@ -63,28 +64,28 @@ public class ClientView extends javax.swing.JFrame {
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
-        jLabel3.setText("ID:");
-        jToolBar1.add(jLabel3);
-        jToolBar1.add(jTextField3);
+        hostLbl.setText("Host:");
+        jToolBar1.add(hostLbl);
+        jToolBar1.add(hostField);
 
-        jLabel1.setText("Host:");
-        jToolBar1.add(jLabel1);
-        jToolBar1.add(jTextField1);
+        portLbl.setText("Port:");
+        jToolBar1.add(portLbl);
+        jToolBar1.add(portField);
 
-        jLabel2.setText("Port:");
-        jToolBar1.add(jLabel2);
-        jToolBar1.add(jTextField2);
+        urlLbl.setText("URL:");
+        jToolBar1.add(urlLbl);
+        jToolBar1.add(urlField);
 
-        jToggleButton1.setText("Connect");
-        jToggleButton1.setFocusable(false);
-        jToggleButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jToggleButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+        connectTgl.setText("Connect");
+        connectTgl.setFocusable(false);
+        connectTgl.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        connectTgl.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        connectTgl.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton1ActionPerformed(evt);
+                connectTglActionPerformed(evt);
             }
         });
-        jToolBar1.add(jToggleButton1);
+        jToolBar1.add(connectTgl);
 
         model = new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -151,27 +152,32 @@ public class ClientView extends javax.swing.JFrame {
         setBounds((screenSize.width-857)/2, (screenSize.height-406)/2, 857, 406);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+    private void connectTglActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectTglActionPerformed
          // Fetch the button from the event
         JToggleButton btn = (JToggleButton) evt.getSource();
 
         // If the button is selected we should run, if the button get's untoggled we should cancel
         if(btn.isSelected()){
-            try {
+         
                 client = new Client();
                 
                 client.start();
                 client.setName("hej");
                 
-                client.connect(5000, "127.0.0.1", 1337, 1337);
-            } catch (IOException ex) {
-                
-            }
-
+                try {
+                    
+                    client.connect(5000, hostField.getText(), Integer.parseInt(portField.getText()),Integer.parseInt(portField.getText()));
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(rootPane, "illegal port");
+                    connectTgl.setSelected(false);
+                } catch (IOException e){
+                    System.out.println("IOException");
+                }
+               
         } else {
             client.stop();
         }
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
+    }//GEN-LAST:event_connectTglActionPerformed
 
     /**
      * @param args the command line arguments
@@ -186,23 +192,23 @@ public class ClientView extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JToggleButton connectTgl;
     private static javax.swing.JLabel crawledLabel;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
+    private javax.swing.JTextField hostField;
+    private javax.swing.JLabel hostLbl;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToolBar jToolBar1;
     private org.jdesktop.swingx.JXTable jXTable1;
     private static javax.swing.JLabel pendingLabel;
+    private javax.swing.JTextField portField;
+    private javax.swing.JLabel portLbl;
     private org.jdesktop.swingx.JXStatusBar statusBar;
     private javax.swing.JLabel statusLabel;
+    private javax.swing.JTextField urlField;
+    private javax.swing.JLabel urlLbl;
     // End of variables declaration//GEN-END:variables
 }
