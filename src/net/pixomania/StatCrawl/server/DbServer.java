@@ -7,15 +7,17 @@ import com.esotericsoftware.kryonet.Server;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.pixomania.StatCrawl.db.DbQueue;
+import net.pixomania.StatCrawl.db.Db;
+import net.pixomania.StatCrawl.db.DbSingleton;
 import net.pixomania.StatCrawl.networking.Packet;
-import net.pixomania.StatCrawl.networking.QueueItem;
+import net.pixomania.StatCrawl.networking.Type;
 /**
  *
  * @author galaxyAbstractor
  */
 public class DbServer {
     private Server server;
+    private Db db = DbSingleton.getDb();
     
     public void start(){
         try {
@@ -29,7 +31,6 @@ public class DbServer {
 
                 // Register the classes we are sending
                 kryo.register(Packet.class);
-                kryo.register(QueueItem.class);
                 
                 server.start();
                 server.bind(ServerView.getPort(), ServerView.getPort());
@@ -37,9 +38,17 @@ public class DbServer {
                 server.addListener(new Listener() {
                     @Override
                     public void received (Connection connection, Object object) {
-                       if (object instanceof QueueItem) {
-                          QueueItem request = (QueueItem)object;
-                          DbQueue.addQuery(request);   
+                       if (object instanceof Packet) {
+                          Packet request = (Packet)object;
+
+                          // What should we respond to the clients?
+                          switch(request.type){
+                              case FETCH:
+                                  // Client wants new links, send him some! Otherwise unhappy customer :'(
+                                  Packet p = new Packet(db.getFirstTenPending(),Type.TOCRAWL);
+                                  connection.sendTCP(p);
+                                  break;
+                          }
                        }
                     }
                     @Override

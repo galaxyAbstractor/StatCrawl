@@ -4,7 +4,7 @@ package net.pixomania.StatCrawl.networking;
  * Different sorts of requests the client can do
  * @author galaxyAbstractor
  */
-public enum Request {
-    FETCH
+public enum Type {
+    TOCRAWL, FETCH
 }
 

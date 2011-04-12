@@ -13,7 +13,9 @@ import net.pixomania.StatCrawl.db.Db;
 import net.pixomania.StatCrawl.db.DbQueue;
 import net.pixomania.StatCrawl.db.DbSingleton;
 import net.pixomania.StatCrawl.networking.Operation;
+import net.pixomania.StatCrawl.networking.Packet;
 import net.pixomania.StatCrawl.networking.QueueItem;
+import net.pixomania.StatCrawl.networking.Type;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -28,7 +30,7 @@ public class Crawler extends Thread {
     
     private boolean run = true;
     private Client client = ClientSingleton.getClient();
-    
+    private Queue<String> pending = new LinkedList<String>();
     /**
      * Indicates to the crawler that it needs to stop
      */
@@ -42,16 +44,27 @@ public class Crawler extends Thread {
     public void resetCrawler(){
         run = true;
     }
+
+    /**
+     * Fills the pending queue with the fetched items
+     * @param pending
+     */
+    public void setPending(LinkedList<String> pending){
+        this.pending = pending;
+    }
     
     @Override
     public void run() {
         Db db = DbSingleton.getDb();
-        Queue<String> pending = new LinkedList<String>();
+        
         // Crawl and parse for links until there is no more pending URL's
         while(run){
             System.out.println("run");
+
             // Get the first ten URLs from the database
-            pending = db.getFirstTenPending();
+            Packet p = new Packet(null, Type.FETCH);
+            // Send it to the Server
+            client.sendTCP(p);
             
             // If the pending list is empty, there may still be parsers that 
             // parses. Wait 5 seconds, then start from the beginning of the loop
@@ -114,7 +127,4 @@ public class Crawler extends Thread {
         DbQueue.stopQueue();
         
     }
-    
-    
-
 }

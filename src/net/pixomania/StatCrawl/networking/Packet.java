@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package net.pixomania.StatCrawl.networking;
 
 /**
@@ -11,5 +6,10 @@ package net.pixomania.StatCrawl.networking;
  */
 public class Packet {
     public Object data;
-    public Response response;
+    public Type type;
+
+    public Packet(Object data, Type type){
+        this.data = data;
+        this.type = type;
+    }
 }

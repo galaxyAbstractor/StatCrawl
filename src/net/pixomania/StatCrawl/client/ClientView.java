@@ -5,24 +5,29 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import java.io.IOException;
+import java.util.LinkedList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 import javax.swing.table.DefaultTableModel;
+import net.pixomania.StatCrawl.crawler.Crawler;
 import net.pixomania.StatCrawl.crawler.ProgRenderer;
 import net.pixomania.StatCrawl.networking.Packet;
-import net.pixomania.StatCrawl.networking.QueueItem;
 
 /**
  *
  * @author galaxyAbstractor
  */
 public class ClientView extends javax.swing.JFrame {
+
     private Client client;
+    private Crawler crawler = new Crawler();
     private static DefaultTableModel model;
+
     static {
-       System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
+        System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
     }
+
     /** Creates new form ClientView */
     public ClientView() {
         initComponents();
@@ -32,9 +37,10 @@ public class ClientView extends javax.swing.JFrame {
      * Return the model that we use in the table
      * @return DefaultTableModel
      */
-    public static DefaultTableModel getModel(){
+    public static DefaultTableModel getModel() {
         return model;
     }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -158,44 +164,56 @@ public class ClientView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void connectTglActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectTglActionPerformed
-         // Fetch the button from the event
+        // Fetch the button from the event
         JToggleButton btn = (JToggleButton) evt.getSource();
 
         // If the button is selected we should run, if the button get's untoggled we should cancel
-        if(btn.isSelected()){
-         
-                client = ClientSingleton.getClient();
-                
-                Kryo kryo = client.getKryo();
-                
-                // Register the classes we are sending
-                kryo.register(Packet.class);
-                kryo.register(QueueItem.class);
+        if (btn.isSelected()) {
+            
+            client = ClientSingleton.getClient();
 
-                client.start();
-                client.setName("hej");
-                
-                try {
-                    
-                    client.connect(5000, hostField.getText(), Integer.parseInt(portField.getText()),Integer.parseInt(portField.getText()));
-                    client.addListener(new Listener() {
-                       @Override
-                       public void received (Connection connection, Object object) {
-                          if (object instanceof Packet) {
-                             Packet response = (Packet)object;
-                             
-                          }
-                       }
-                    });
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(rootPane, "illegal port");
-                    connectTgl.setSelected(false);
-                } catch (IOException e){
-                    System.out.println("IOException");
-                }
-               
+            Kryo kryo = client.getKryo();
+
+            // Register the classes we are sending
+            kryo.register(Packet.class);
+
+            client.start();
+            client.setName("hej");
+
+            try {
+
+                client.connect(5000, hostField.getText(), Integer.parseInt(portField.getText()), Integer.parseInt(portField.getText()));
+                client.addListener(new Listener() {
+
+                    @Override
+                    public void received(Connection connection, Object object) {
+                        if (object instanceof Packet) {
+                            // Get our packet
+                            Packet response = (Packet) object;
+
+                            // Check the type of the packet. Different types are defined in the Type enum
+                            switch(response.type){
+                                case TOCRAWL:
+                                    // We got a packet with links to crawl. Lets crawl them!
+                                    crawler.setPending((LinkedList<String>) response.data);
+                                    break;
+                            }
+                        }
+                    }
+                });
+                crawler.resetCrawler();
+                crawler.start();
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(rootPane, "illegal port");
+                connectTgl.setSelected(false);
+            } catch (IOException e) {
+                System.out.println("IOException");
+            }
+
         } else {
+            crawler.stopCrawler();
             client.stop();
+
         }
     }//GEN-LAST:event_connectTglActionPerformed
 
