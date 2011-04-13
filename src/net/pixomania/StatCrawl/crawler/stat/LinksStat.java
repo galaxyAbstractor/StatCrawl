@@ -5,7 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import org.jsoup.nodes.Element;
 import net.pixomania.StatCrawl.crawler.Stat;
-import net.pixomania.StatCrawl.db.DbQueue;
+import net.pixomania.StatCrawl.networking.DbStore;
 import net.pixomania.StatCrawl.networking.Operation;
 import net.pixomania.StatCrawl.networking.QueueItem;
 import org.jsoup.nodes.Document;
@@ -53,7 +53,7 @@ public class LinksStat extends Stat {
     public void save() {
         for(URL pUrl : pending){
            String url = pUrl.toString();
-           DbQueue.addQuery(new QueueItem(url, Operation.PENDING));
+           DbStore.add(new QueueItem(url, Operation.PENDING));
         }
     }
 

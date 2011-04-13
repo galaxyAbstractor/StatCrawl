@@ -5,8 +5,9 @@ import java.net.URL;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
+import net.pixomania.StatCrawl.client.ClientView;
 import net.pixomania.StatCrawl.crawler.stat.LinksStat;
-import net.pixomania.StatCrawl.db.DbQueue;
+import net.pixomania.StatCrawl.networking.DbStore;
 import net.pixomania.StatCrawl.networking.Operation;
 import net.pixomania.StatCrawl.networking.QueueItem;
 import net.pixomania.statcrawl.crawler.stat.ImageStat;
@@ -22,7 +23,7 @@ public class Parser extends SwingWorker<Void, Void>{
     private String url;
     private JProgressBar progress;
     private int rowIndex;
-    private DefaultTableModel model = CrawlView.getModel();
+    private DefaultTableModel model = ClientView.getModel();
     
     /**
      * Creates a new parser
@@ -38,6 +39,7 @@ public class Parser extends SwingWorker<Void, Void>{
     protected Void doInBackground() throws Exception {
         // Add the parser to the table so we can monitor its status 
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 model.addRow(new Object[]{url, new JProgressBar()});
             }
@@ -57,7 +59,7 @@ public class Parser extends SwingWorker<Void, Void>{
        
 
         // This URL is crawled and does not need to be crawled again
-        DbQueue.addQuery(new QueueItem(url, Operation.CRAWLED));
+        DbStore.add(new QueueItem(url, Operation.CRAWLED));
         
         // Creates the parser that parses the links
         Stat linkparser = new LinksStat(html);
@@ -69,9 +71,9 @@ public class Parser extends SwingWorker<Void, Void>{
         // Host and IP stats
         String host = new URL(url).getHost();
         String ip = InetAddress.getByName(host).getHostAddress();
-        DbQueue.addQuery(new QueueItem(ip, Operation.IP));
+        DbStore.add(new QueueItem(ip, Operation.IP));
         
-        DbQueue.addQuery(new QueueItem(host, Operation.HOST));
+        DbStore.add(new QueueItem(host, Operation.HOST));
         
         // Remove the row. NEEDS TO BE CHANGED!
         model.removeRow(rowIndex);

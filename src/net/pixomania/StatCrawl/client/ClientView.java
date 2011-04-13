@@ -1,10 +1,15 @@
 package net.pixomania.StatCrawl.client;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.serialize.CollectionSerializer;
+import com.esotericsoftware.kryo.serialize.EnumSerializer;
+import com.esotericsoftware.kryo.serialize.FieldSerializer;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -12,7 +17,9 @@ import javax.swing.JToggleButton;
 import javax.swing.table.DefaultTableModel;
 import net.pixomania.StatCrawl.crawler.Crawler;
 import net.pixomania.StatCrawl.crawler.ProgRenderer;
+import net.pixomania.StatCrawl.networking.Operation;
 import net.pixomania.StatCrawl.networking.Packet;
+import net.pixomania.StatCrawl.networking.QueueItem;
 
 /**
  *
@@ -175,7 +182,13 @@ public class ClientView extends javax.swing.JFrame {
             Kryo kryo = client.getKryo();
 
             // Register the classes we are sending
-            kryo.register(Packet.class);
+            kryo.register(Packet.class, new FieldSerializer(kryo, Packet.class));
+            kryo.register(Type.class, new EnumSerializer(Type.class));
+            kryo.register(Object.class, new FieldSerializer(kryo, Object.class));
+            kryo.register(Collection.class, new CollectionSerializer(kryo));
+            kryo.register(QueueItem.class, new FieldSerializer(kryo, QueueItem.class));
+            kryo.register(ArrayList.class, new CollectionSerializer(kryo));
+            kryo.register(Operation.class, new EnumSerializer(Operation.class));
 
             client.start();
             client.setName("hej");

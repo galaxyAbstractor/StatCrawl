@@ -17,6 +17,7 @@ import java.io.PrintStream;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
+import net.pixomania.StatCrawl.db.DbQueue;
 
 /**
  *
@@ -26,6 +27,7 @@ public class ServerView extends javax.swing.JFrame {
     private PipedInputStream piOut;
     private PipedOutputStream poOut;
     private DbServer server = new DbServer();
+    private DbQueue dbQueue = new DbQueue();
     static {
        System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
     }
@@ -150,8 +152,11 @@ public class ServerView extends javax.swing.JFrame {
         // If the button is selected we should run, if the button get's untoggled we should cancel
         if(btn.isSelected()){
             server.start();
+            dbQueue.resetQueue();
+            dbQueue.start();
         } else {
             server.stop();
+            dbQueue.stopQueue();
         }
     }//GEN-LAST:event_tglServerTglActionPerformed
 

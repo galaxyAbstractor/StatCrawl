@@ -56,7 +56,7 @@ public class Db {
         String md5 = Md5.getMD5Digest(url.getBytes());
         
         // We have to see if the URL already been crawled
-        String query = "SELECT * FROM crawled WHERE md5 = '"+md5+"'";
+        String query = "(SELECT md5 FROM crawled WHERE md5 = '"+md5+"') UNION (SELECT md5 FROM crawling WHERE md5 = '"+md5+"')";
            
         try {
             // Creates and executes the above given query
@@ -166,6 +166,7 @@ public class Db {
             ResultSet rs = statement.executeQuery();
             // Add them to the list we'll return
             while(rs.next()){
+                insertCrawling(rs.getString("url"));
                 list.add(rs.getString("url"));
             }
 
@@ -182,7 +183,7 @@ public class Db {
      */
     public void insertIP(String host){
         // Check to see if the IP of this host is already in the table
-        String query = "SELECT * FROM hosts WHERE host = '"+host+"'";
+        String query = "SELECT host FROM hosts WHERE host = '"+host+"'";
         
         try {
             
@@ -195,7 +196,7 @@ public class Db {
             if(rowcount == 0){
                 // The host was not found, see if the IP already exists
                 String ip = InetAddress.getByName(host).getHostAddress();
-                query = "SELECT * FROM ip WHERE ip = '"+ip+"'";
+                query = "SELECT ip FROM ip WHERE ip = '"+ip+"'";
 
                 
                 st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -232,7 +233,7 @@ public class Db {
      */
     public void insertHost(String host){
         // Check if the host already exists
-        String query = "SELECT * FROM hosts WHERE host = '"+host+"'";
+        String query = "SELECT host FROM hosts WHERE host = '"+host+"'";
         
         try {
             Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -298,7 +299,7 @@ public class Db {
                  #################### */
                 
                 // Check if the country already has a row
-                query = "SELECT * FROM countries WHERE name = '"+rs.getString("country_name") +"'";
+                query = "SELECT name FROM countries WHERE name = '"+rs.getString("country_name") +"'";
                 st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
                 ResultSet countries = st.executeQuery(query);
 
@@ -331,7 +332,7 @@ public class Db {
                 if(regionName.isEmpty()) regionName = "unknown";
                 
                 // We have to see if the region already exists
-                query = "SELECT * FROM regions WHERE code = '"+region +"' AND short = '"+ rs.getString("country_code")+"'";
+                query = "SELECT code FROM regions WHERE code = '"+region +"' AND short = '"+ rs.getString("country_code")+"'";
                 st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
                 ResultSet regions = st.executeQuery(query);
 
@@ -362,7 +363,7 @@ public class Db {
                 if(city.isEmpty()) city = "unknown";
                 
                 // Check if the city already exists
-                query = "SELECT * FROM cities WHERE name = '"+city +"' AND short = '"+region+
+                query = "SELECT name FROM cities WHERE name = '"+city +"' AND short = '"+region+
                         "' AND countrycode = '"+rs.getString("country_code")+"'";
                 st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
                 ResultSet cities = st.executeQuery(query);
@@ -407,7 +408,7 @@ public class Db {
         sc.close();
         
         
-        String query = "SELECT * FROM images WHERE extension = '"+extension+"'";
+        String query = "SELECT extension FROM images WHERE extension = '"+extension+"'";
            
         try {
             // Creates and executes the above given query

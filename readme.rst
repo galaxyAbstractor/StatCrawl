@@ -4,6 +4,7 @@ Country database from http://ipinfodb.com/ip_database.php is needed (Complete (c
 
 Changelog
 =======
+* Apr 13, 2011: Problems with sending packets. Cannot be serialized, it says. Gonna look into it.
 * Apr 12, 2011: Should be able to fetch links now. Note: untested
 * Apr 11, 2011: Ability to chose ports and host. Some initial start of a way to send requests and responses.
 * Apr 10, 2011: Made a table for links currently in crawl-state.

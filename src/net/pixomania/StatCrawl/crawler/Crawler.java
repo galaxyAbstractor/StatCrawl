@@ -12,6 +12,7 @@ import net.pixomania.StatCrawl.client.ClientSingleton;
 import net.pixomania.StatCrawl.db.Db;
 import net.pixomania.StatCrawl.db.DbQueue;
 import net.pixomania.StatCrawl.db.DbSingleton;
+import net.pixomania.StatCrawl.networking.DbStore;
 import net.pixomania.StatCrawl.networking.Operation;
 import net.pixomania.StatCrawl.networking.Packet;
 import net.pixomania.StatCrawl.networking.QueueItem;
@@ -56,16 +57,16 @@ public class Crawler extends Thread {
     @Override
     public void run() {
         Db db = DbSingleton.getDb();
-        
+
+        // Get the first ten URLs from the database
+        Packet fetch = new Packet("null", Type.FETCH);
+        // Send it to the Server
+        client.sendTCP(fetch);
+
         // Crawl and parse for links until there is no more pending URL's
         while(run){
             System.out.println("run");
 
-            // Get the first ten URLs from the database
-            Packet p = new Packet(null, Type.FETCH);
-            // Send it to the Server
-            client.sendTCP(p);
-            
             // If the pending list is empty, there may still be parsers that 
             // parses. Wait 5 seconds, then start from the beginning of the loop
             if(pending.isEmpty()){
@@ -84,7 +85,7 @@ public class Crawler extends Thread {
                 String url = pending.poll();
                 
                 // Remove the first URL from the pending list
-                DbQueue.addQuery(new QueueItem(url, Operation.REMOVE));
+                DbStore.add(new QueueItem(url, Operation.REMOVE));
 
                 // we have to make sure it's HTML output, not an image, before we parse it as HTML
                 URL url2;
@@ -112,19 +113,15 @@ public class Crawler extends Thread {
                 }
                 
             }
-            
-            // Wait for the DbQueue to reach zero before doing next batch of
-            // Crawls
-            while(DbQueue.getSize() != 0){
-                try {
-                    this.sleep(5000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Crawler.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+
+            // Send the stored queries to the server. Then reset the local queue.
+            Packet storedQueries = new Packet(DbStore.getList(), Type.QUERIES);
+            client.sendTCP(storedQueries);
+            DbStore.reset();
+
+            // Request more links
+            client.sendTCP(fetch);
         }
         System.out.println("Crawler has stopped");
-        DbQueue.stopQueue();
-        
     }
 }

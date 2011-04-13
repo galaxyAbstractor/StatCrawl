@@ -1,5 +1,6 @@
 package net.pixomania.StatCrawl.db;
 
+import java.util.Collection;
 import net.pixomania.StatCrawl.networking.QueueItem;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -19,13 +20,21 @@ public class DbQueue extends Thread {
      * @param item a QueueItem (data, operation) to add to the queue
      */
     public static void addQuery(QueueItem item){
-        pendingQueries.add(item);
+        pendingQueries.add(item);   
+    }
+
+    /**
+     * Adds a list of queries to the pending queue
+     * @param items
+     */
+    public static void addAll(Collection<QueueItem> items){
+        pendingQueries.addAll(items);
     }
     
     /**
      * Indicates to the DbQueue to stop when it's done with all operations.
      */
-    public static void stopQueue(){
+    public void stopQueue(){
         run = false;
     }
     
