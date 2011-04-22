@@ -24,6 +24,7 @@ public class Parser extends SwingWorker<Void, Void>{
     private JProgressBar progress;
     private int rowIndex;
     private DefaultTableModel model = ClientView.getModel();
+    private Crawler crawler = CrawlerSingleton.getCrawler();
     
     /**
      * Creates a new parser
@@ -45,21 +46,11 @@ public class Parser extends SwingWorker<Void, Void>{
             }
         });
         
-        // Get its rowindex so we can alter it later on. NEEDS TO BE CHANGED!
-        rowIndex = 0;
-        for(int i = 0;i<model.getRowCount();i++){
-            if(model.getValueAt(i, 0).equals(url)){
-                rowIndex = i;
-                break;
-            }
-        }
-        
-        progress = (JProgressBar) model.getValueAt(rowIndex, 1);
-        
-       
-
         // This URL is crawled and does not need to be crawled again
-        DbStore.add(new QueueItem(url, Operation.CRAWLED));
+        QueueItem qiCrawled = new QueueItem();
+        qiCrawled.data = url;
+        qiCrawled.operation = Operation.CRAWLED;
+        DbStore.add(qiCrawled);
         
         // Creates the parser that parses the links
         Stat linkparser = new LinksStat(html);
@@ -71,13 +62,37 @@ public class Parser extends SwingWorker<Void, Void>{
         // Host and IP stats
         String host = new URL(url).getHost();
         String ip = InetAddress.getByName(host).getHostAddress();
-        DbStore.add(new QueueItem(ip, Operation.IP));
+        QueueItem qiIP =  new QueueItem();
+        qiIP.data = ip;
+        qiIP.operation = Operation.IP;
+        DbStore.add(qiIP);
+
+        QueueItem qiHost = new QueueItem();
+        qiHost.data = host;
+        qiHost.operation = Operation.HOST;
+        DbStore.add(qiHost);
         
-        DbStore.add(new QueueItem(host, Operation.HOST));
+        // Tell the crawler that we are done parsing
+        crawler.doneParsing();
+        System.out.println("Removed parser - "+ crawler.getDoneParsing() +" of "+ crawler.getSitesToCrawl());
+
+        // Get its rowindex so we can alter it later on. NEEDS TO BE CHANGED!
+        rowIndex = 0;
+        for(int i = 0;i<model.getRowCount();i++){
+            if(model.getValueAt(i, 0).equals(url)){
+                rowIndex = i;
+                break;
+            }
+        }
+
+        progress = (JProgressBar) model.getValueAt(rowIndex, 1);
         
-        // Remove the row. NEEDS TO BE CHANGED!
-        model.removeRow(rowIndex);
-        System.out.println("Removed parser");
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                progress.setValue(100);
+            }
+        });
         return null;
     }
 }

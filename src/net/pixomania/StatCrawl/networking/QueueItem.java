@@ -7,10 +7,5 @@ package net.pixomania.StatCrawl.networking;
 public class QueueItem {
     public String data;
     public Operation operation;
-    
-    public QueueItem(String data, Operation operation){
-        this.data = data;
-        this.operation = operation;
-    }
-   
+ 
 }

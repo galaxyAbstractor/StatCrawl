@@ -27,8 +27,9 @@ public class DbQueue extends Thread {
      * Adds a list of queries to the pending queue
      * @param items
      */
-    public static void addAll(Collection<QueueItem> items){
+    public synchronized void addAll(Collection<QueueItem> items){
         pendingQueries.addAll(items);
+        this.notify();
     }
     
     /**
@@ -58,13 +59,17 @@ public class DbQueue extends Thread {
     
     @Override
     public void run(){
+        
+    }
+
+    public synchronized void doQueue(){
         while (true) {
             // if the queue has pending items, we check which operation they
             // should perform and perform it. Otherwise we sleep for 2 seconds.
             if(!pendingQueries.isEmpty()) {
                 QueueItem item = pendingQueries.poll();
                 System.out.println(pendingQueries.size() + " items left in queue. Operation performed: " + item.operation);
-                
+
                 switch(item.operation){
                     case CRAWLED:
                         db.insertCrawled(item.data);
@@ -87,12 +92,15 @@ public class DbQueue extends Thread {
                     case CRAWLING:
                         db.insertCrawling(item.data);
                         break;
+                    case ERROR:
+                        db.insertError(item.data);
+                        break;
                 }
-                 
+
              } else {
                 if(run){
                     try {
-                        this.sleep(2000);
+                        this.wait();
                     } catch (InterruptedException ex) {
                         run = false;
                     }
@@ -103,5 +111,5 @@ public class DbQueue extends Thread {
                 }
              }
         }
-    }   
+    }
 }

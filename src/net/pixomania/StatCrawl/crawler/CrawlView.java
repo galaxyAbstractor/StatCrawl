@@ -194,7 +194,10 @@ public class CrawlView extends javax.swing.JFrame {
                 btn.setSelected(false);
             } else {
                 // URL seems valid, add it to the pending table
-                DbQueue.addQuery(new QueueItem(urlField.getText(), Operation.PENDING));
+                QueueItem qi = new QueueItem();
+                qi.data = urlField.getText();
+                qi.operation = Operation.PENDING;
+                DbQueue.addQuery(qi);
                 
                 // We reset and start the DbQueue
                 dq.resetQueue();

@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 import javax.swing.table.DefaultTableModel;
 import net.pixomania.StatCrawl.crawler.Crawler;
+import net.pixomania.StatCrawl.crawler.CrawlerSingleton;
 import net.pixomania.StatCrawl.crawler.ProgRenderer;
 import net.pixomania.StatCrawl.networking.Operation;
 import net.pixomania.StatCrawl.networking.Packet;
@@ -28,7 +29,7 @@ import net.pixomania.StatCrawl.networking.QueueItem;
 public class ClientView extends javax.swing.JFrame {
 
     private Client client;
-    private Crawler crawler = new Crawler();
+    private Crawler crawler = CrawlerSingleton.getCrawler();
     private static DefaultTableModel model;
 
     static {
@@ -48,6 +49,15 @@ public class ClientView extends javax.swing.JFrame {
         return model;
     }
 
+    /**
+     * Clear the table
+     */
+    public static void clearRows(){
+//        int rowcount = model.getRowCount();
+//        for(int i = rowcount-1; i >= 0;i--) model.removeRow(i);
+        model.setRowCount(0);
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -65,12 +75,12 @@ public class ClientView extends javax.swing.JFrame {
         urlLbl = new javax.swing.JLabel();
         urlField = new javax.swing.JTextField();
         connectTgl = new javax.swing.JToggleButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jXTable1 = new org.jdesktop.swingx.JXTable();
         statusBar = new org.jdesktop.swingx.JXStatusBar();
         statusLabel = new javax.swing.JLabel();
         pendingLabel = new javax.swing.JLabel();
         crawledLabel = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -105,6 +115,15 @@ public class ClientView extends javax.swing.JFrame {
         });
         jToolBar1.add(connectTgl);
 
+        statusLabel.setText("Status");
+        statusBar.add(statusLabel);
+
+        pendingLabel.setText("Pending: 0");
+        statusBar.add(pendingLabel);
+
+        crawledLabel.setText("Crawled: 0");
+        statusBar.add(crawledLabel);
+
         model = new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -121,20 +140,9 @@ public class ClientView extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         };
-        jXTable1.setModel(model);
-        jXTable1.setSortable(false);
-        jXTable1.setSortsOnUpdates(false);
-        jScrollPane1.setViewportView(jXTable1);
-        jXTable1.getColumn("Progress").setCellRenderer(new ProgRenderer());
-
-        statusLabel.setText("Status");
-        statusBar.add(statusLabel);
-
-        pendingLabel.setText("Pending: 0");
-        statusBar.add(pendingLabel);
-
-        crawledLabel.setText("Crawled: 0");
-        statusBar.add(crawledLabel);
+        jTable1.setModel(model);
+        jScrollPane1.setViewportView(jTable1);
+        jTable1.getColumn("Progress").setCellRenderer(new ProgRenderer());
 
         jMenu1.setText("File");
 
@@ -183,11 +191,12 @@ public class ClientView extends javax.swing.JFrame {
 
             // Register the classes we are sending
             kryo.register(Packet.class, new FieldSerializer(kryo, Packet.class));
-            kryo.register(Type.class, new EnumSerializer(Type.class));
+            kryo.register(net.pixomania.StatCrawl.networking.Type.class, new EnumSerializer(net.pixomania.StatCrawl.networking.Type.class));
             kryo.register(Object.class, new FieldSerializer(kryo, Object.class));
             kryo.register(Collection.class, new CollectionSerializer(kryo));
             kryo.register(QueueItem.class, new FieldSerializer(kryo, QueueItem.class));
             kryo.register(ArrayList.class, new CollectionSerializer(kryo));
+            kryo.register(LinkedList.class, new CollectionSerializer(kryo));
             kryo.register(Operation.class, new EnumSerializer(Operation.class));
 
             client.start();
@@ -209,6 +218,8 @@ public class ClientView extends javax.swing.JFrame {
                                 case TOCRAWL:
                                     // We got a packet with links to crawl. Lets crawl them!
                                     crawler.setPending((LinkedList<String>) response.data);
+                                    break;
+                                default:
                                     break;
                             }
                         }
@@ -236,7 +247,7 @@ public class ClientView extends javax.swing.JFrame {
     public static void main(String args[]) {
         JFrame.setDefaultLookAndFeelDecorated(true);
         java.awt.EventQueue.invokeLater(new Runnable() {
-
+            @Override
             public void run() {
                 new ClientView().setVisible(true);
             }
@@ -252,8 +263,8 @@ public class ClientView extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;
     private javax.swing.JToolBar jToolBar1;
-    private org.jdesktop.swingx.JXTable jXTable1;
     private static javax.swing.JLabel pendingLabel;
     private javax.swing.JTextField portField;
     private javax.swing.JLabel portLbl;

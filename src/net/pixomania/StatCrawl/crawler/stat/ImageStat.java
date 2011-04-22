@@ -78,7 +78,10 @@ public class ImageStat extends Stat {
     @Override
     public void save() {
         for(String stat : pending){
-           DbStore.add(new QueueItem(stat, Operation.IMAGE));
+            QueueItem qi =  new QueueItem();
+            qi.data = stat;
+            qi.operation = Operation.IMAGE;
+           DbStore.add(qi);
         }
     }
 }

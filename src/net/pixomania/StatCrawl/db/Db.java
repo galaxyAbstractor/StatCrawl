@@ -97,8 +97,9 @@ public class Db {
 
             // Creates and executes the above given query
             Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ResultSet rs = st.executeQuery(query);
+            st.executeUpdate(query);
 
+            System.out.println("inserted into crawling");
             // Now remove it from pending
             query = "DELETE FROM pending WHERE md5 = '"+md5+"'";
 
@@ -106,7 +107,8 @@ public class Db {
             deleteStatement.executeUpdate(query);
 
         } catch (SQLException ex) {
-           
+            System.out.println("Error");
+            ex.printStackTrace();
         }
     }
     
@@ -155,7 +157,7 @@ public class Db {
      * Get the first item on the list
      * @return the URL as a String
      */
-    public synchronized LinkedList<String> getFirstTenPending() {
+    public LinkedList<String> getFirstTenPending() {
         LinkedList<String> list = new LinkedList<String>();
         try {
             String query = "SELECT url FROM pending";
@@ -435,6 +437,50 @@ public class Db {
             }
             
             
+        } catch (SQLException ex) {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Inserts the HTTP error code into the errors table
+     * @param error data separated by spaces (host ip code)
+     */
+    public void insertError(String error){
+        Scanner sc = new Scanner(error);
+
+        String host = sc.next();
+        String ip = sc.next();
+        String code = sc.next();
+        sc.close();
+
+        String query = "SELECT code FROM errors WHERE code = '"+code+"'";
+
+        try {
+            // Creates and executes the above given query
+            Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet rs = st.executeQuery(query);
+
+            // Go to the last row and try to get it
+            rs.last();
+            int rowcount = rs.getRow();
+
+            if(rowcount == 0){
+                // There was no rows matching the select, so we the URL hasn't been crawled yet
+                Statement insertStatement = conn.createStatement();
+                query = "INSERT IGNORE INTO errors (count, code) VALUES (1,'"+ code +"')";
+
+                insertStatement.executeUpdate(query);
+
+            } else {
+                // It does, update it
+                Statement updateStatement = conn.createStatement();
+                query = "UPDATE errors SET count = count+1 WHERE code = '"+code+"'";
+
+                updateStatement.executeUpdate(query);
+            }
+
+
         } catch (SQLException ex) {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
         }

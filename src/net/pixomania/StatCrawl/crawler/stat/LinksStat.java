@@ -53,7 +53,10 @@ public class LinksStat extends Stat {
     public void save() {
         for(URL pUrl : pending){
            String url = pUrl.toString();
-           DbStore.add(new QueueItem(url, Operation.PENDING));
+           QueueItem qi = new QueueItem();
+           qi.data = url;
+           qi.operation = Operation.PENDING;
+           DbStore.add(qi);
         }
     }
 

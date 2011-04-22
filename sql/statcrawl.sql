@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 07, 2011 at 07:15 PM
+-- Generation Time: Apr 22, 2011 at 12:12 PM
 -- Server version: 5.5.8
 -- PHP Version: 5.3.5
 
@@ -61,6 +61,31 @@ CREATE TABLE IF NOT EXISTS `crawled` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `crawling`
+--
+
+CREATE TABLE IF NOT EXISTS `crawling` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `md5` varchar(64) NOT NULL,
+  `url` varchar(3000) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `md5` (`md5`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=61 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `errors`
+--
+
+CREATE TABLE IF NOT EXISTS `errors` (
+  `code` varchar(30) NOT NULL,
+  `count` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `hosts`
 --
 
@@ -104,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `pending` (
   `url` varchar(2000) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `md5` (`md5`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12277 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12184 ;
 
 -- --------------------------------------------------------
 

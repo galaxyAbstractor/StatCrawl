@@ -27,7 +27,6 @@ public class ServerView extends javax.swing.JFrame {
     private PipedInputStream piOut;
     private PipedOutputStream poOut;
     private DbServer server = new DbServer();
-    private DbQueue dbQueue = new DbQueue();
     static {
        System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
     }
@@ -45,15 +44,16 @@ public class ServerView extends javax.swing.JFrame {
     /** Creates new form ServerView */
     public ServerView() {
        initComponents();
-       try {
-            // Set up System.out
-            piOut = new PipedInputStream();
-            poOut = new PipedOutputStream(piOut);
-            System.setOut(new PrintStream(poOut, true));
-            new Console(piOut).start();
-        } catch (IOException ex) {
-            
-        }
+       // Misses characters :S
+//       try {
+//            // Set up System.out
+//            piOut = new PipedInputStream();
+//            poOut = new PipedOutputStream(piOut);
+//            System.setOut(new PrintStream(poOut, true));
+//            new Console(piOut).start();
+//        } catch (IOException ex) {
+//
+//        }
     }
 
     /** This method is called from within the constructor to
@@ -152,11 +152,8 @@ public class ServerView extends javax.swing.JFrame {
         // If the button is selected we should run, if the button get's untoggled we should cancel
         if(btn.isSelected()){
             server.start();
-            dbQueue.resetQueue();
-            dbQueue.start();
         } else {
             server.stop();
-            dbQueue.stopQueue();
         }
     }//GEN-LAST:event_tglServerTglActionPerformed
 
@@ -167,6 +164,7 @@ public class ServerView extends javax.swing.JFrame {
         JFrame.setDefaultLookAndFeelDecorated(true);
         java.awt.EventQueue.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 new ServerView().setVisible(true);
             }

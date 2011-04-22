@@ -10,6 +10,7 @@ import com.esotericsoftware.kryonet.Server;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.pixomania.StatCrawl.db.Db;
@@ -26,9 +27,12 @@ import net.pixomania.StatCrawl.networking.Type;
 public class DbServer {
     private Server server;
     private Db db = DbSingleton.getDb();
+    private DbQueue dbQueue = new DbQueue();
     
     public void start(){
         try {
+            dbQueue.resetQueue();
+            dbQueue.start();
             server = new Server();
             
             int port = ServerView.getPort();
@@ -39,11 +43,12 @@ public class DbServer {
 
                 // Register the classes we are sending
                 kryo.register(Packet.class, new FieldSerializer(kryo, Packet.class));
-                kryo.register(Type.class, new EnumSerializer(Type.class));
+                kryo.register(net.pixomania.StatCrawl.networking.Type.class, new EnumSerializer(net.pixomania.StatCrawl.networking.Type.class));
                 kryo.register(Object.class, new FieldSerializer(kryo, Object.class));
                 kryo.register(Collection.class, new CollectionSerializer(kryo));
                 kryo.register(QueueItem.class, new FieldSerializer(kryo, QueueItem.class));
-                kryo.register(ArrayList.class, new CollectionSerializer(kryo));
+                kryo.register(ArrayList.class);
+                kryo.register(LinkedList.class, new CollectionSerializer(kryo));
                 kryo.register(Operation.class, new EnumSerializer(Operation.class));
                 
                 server.start();
@@ -54,16 +59,20 @@ public class DbServer {
                     public void received (Connection connection, Object object) {
                        if (object instanceof Packet) {
                           Packet request = (Packet)object;
-
+                          Packet p;
                           // What should we respond to the clients?
                           switch(request.type){
                               case FETCH:
                                   // Client wants new links, send him some! Otherwise unhappy customer :'(
-                                  Packet p = new Packet(db.getFirstTenPending(),Type.TOCRAWL);
+                                  p = new Packet();
+                                  p.data = db.getFirstTenPending();
+                                  p.type = Type.TOCRAWL;
                                   connection.sendTCP(p);
                                   break;
                               case QUERIES:
-                                  DbQueue.addAll((Collection<QueueItem>) request.data);
+                                  System.out.println("Got Queries");
+                                  dbQueue.addAll((Collection<QueueItem>) request.data);
+                                  
                                   break;
                           }
                        }
@@ -84,5 +93,6 @@ public class DbServer {
     
     public void stop(){
         server.stop();
+        dbQueue.stopQueue();
     }
 }
