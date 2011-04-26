@@ -4,7 +4,8 @@ Country database from http://ipinfodb.com/ip_database.php is needed (Complete (c
 
 Changelog
 =======
-* Apr 22, 2011: Receives links, succefully deserialzie, succefully crawls, but disconnects without any error when trying to send in the results....
+* Apr 26, 2011: Finally got it to work over network! It will now fetch links, crawl them, and submit the reults to the database. It times out on next fetch though :\
+* Apr 22, 2011: Receives links, succefully deserialize, succefully crawls, but disconnects without any error when trying to send in the results....
 * Apr 13, 2011: Problems with sending packets. Cannot be serialized, it says. Gonna look into it.
 * Apr 12, 2011: Should be able to fetch links now. Note: untested
 * Apr 11, 2011: Ability to chose ports and host. Some initial start of a way to send requests and responses.

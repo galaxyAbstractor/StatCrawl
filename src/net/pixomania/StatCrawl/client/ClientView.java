@@ -7,6 +7,7 @@ import com.esotericsoftware.kryo.serialize.FieldSerializer;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.minlog.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -186,25 +187,24 @@ public class ClientView extends javax.swing.JFrame {
         if (btn.isSelected()) {
             
             client = ClientSingleton.getClient();
-
+            Log.set(Log.LEVEL_DEBUG);
             Kryo kryo = client.getKryo();
 
+            
             // Register the classes we are sending
-            kryo.register(Packet.class, new FieldSerializer(kryo, Packet.class));
-            kryo.register(net.pixomania.StatCrawl.networking.Type.class, new EnumSerializer(net.pixomania.StatCrawl.networking.Type.class));
-            kryo.register(Object.class, new FieldSerializer(kryo, Object.class));
-            kryo.register(Collection.class, new CollectionSerializer(kryo));
-            kryo.register(QueueItem.class, new FieldSerializer(kryo, QueueItem.class));
-            kryo.register(ArrayList.class, new CollectionSerializer(kryo));
-            kryo.register(LinkedList.class, new CollectionSerializer(kryo));
-            kryo.register(Operation.class, new EnumSerializer(Operation.class));
+            kryo.register(Packet.class);
+            kryo.register(net.pixomania.StatCrawl.networking.Type.class);
+            kryo.register(QueueItem.class);
+            kryo.register(ArrayList.class);
+            kryo.register(LinkedList.class);
+            kryo.register(Operation.class);
 
             client.start();
             client.setName("hej");
 
             try {
 
-                client.connect(5000, hostField.getText(), Integer.parseInt(portField.getText()), Integer.parseInt(portField.getText()));
+                client.connect(5000, hostField.getText(), Integer.parseInt(portField.getText()));
                 client.addListener(new Listener() {
 
                     @Override

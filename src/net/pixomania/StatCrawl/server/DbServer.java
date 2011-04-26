@@ -33,7 +33,7 @@ public class DbServer {
         try {
             dbQueue.resetQueue();
             dbQueue.start();
-            server = new Server();
+            server = new Server(30000,30000);
             
             int port = ServerView.getPort();
             if(port == -1) {
@@ -42,18 +42,16 @@ public class DbServer {
                 Kryo kryo = server.getKryo();
 
                 // Register the classes we are sending
-                kryo.register(Packet.class, new FieldSerializer(kryo, Packet.class));
-                kryo.register(net.pixomania.StatCrawl.networking.Type.class, new EnumSerializer(net.pixomania.StatCrawl.networking.Type.class));
-                kryo.register(Object.class, new FieldSerializer(kryo, Object.class));
-                kryo.register(Collection.class, new CollectionSerializer(kryo));
-                kryo.register(QueueItem.class, new FieldSerializer(kryo, QueueItem.class));
+                kryo.register(Packet.class);
+                kryo.register(net.pixomania.StatCrawl.networking.Type.class);
+                kryo.register(QueueItem.class);
                 kryo.register(ArrayList.class);
-                kryo.register(LinkedList.class, new CollectionSerializer(kryo));
-                kryo.register(Operation.class, new EnumSerializer(Operation.class));
+                kryo.register(LinkedList.class);
+                kryo.register(Operation.class);
                 
                 server.start();
-                server.bind(ServerView.getPort(), ServerView.getPort());
-
+                server.bind(ServerView.getPort());
+                
                 server.addListener(new Listener() {
                     @Override
                     public void received (Connection connection, Object object) {

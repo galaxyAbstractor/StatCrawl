@@ -59,7 +59,7 @@ public class DbQueue extends Thread {
     
     @Override
     public void run(){
-        
+        doQueue();
     }
 
     public synchronized void doQueue(){

@@ -18,7 +18,7 @@ public class ClientSingleton {
      * @return the Client object
      */
     public static Client getClient(){
-        if(client == null) client = new Client();
+        if(client == null) client = new Client(30000,30000);
         return client;
     }
 

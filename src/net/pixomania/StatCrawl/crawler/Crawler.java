@@ -7,7 +7,9 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -183,31 +185,32 @@ public class Crawler extends Thread {
 
             if(doneParsing == sitesToCrawl){
                 // Send the stored queries to the server. Then reset the local queue.
-
-                Packet storedQueries = new Packet();
-                System.out.println("Created new packet");
-                storedQueries.data = DbStore.getList();
-                System.out.println("Got list");
-                storedQueries.type = Type.QUERIES;
-                System.out.println("Put type QUERIES");
-                client.sendTCP(storedQueries); // DISCONNECT???
-                System.out.println("Sent package");
-
-                DbStore.reset();
-                System.out.println("Reseted DbStore");
+                List<List<QueueItem>> list = chopped(DbStore.getList(), 500);
+                for(int i = 0; i < list.size();i++){
+                    // Send the stored queries to the server. Then reset the local queue.
+                    Packet storedQueries = new Packet();
+                    storedQueries.data = list.get(i);
+                    storedQueries.type = Type.QUERIES;
+                    client.sendTCP(storedQueries);
+                    
+                    if(i != list.size()-1){
+                        // Wait a bit to send next package, otherwise the computer may suffer connection loss
+                        try {
+                            this.sleep(5000);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Crawler.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
 
                 // Reset some values
                 doneParsing = 0;
                 sitesToCrawl = 0;
                 ClientView.clearRows();
-                System.out.println("Cleared rows");
-
-                fetch = new Packet();
-                System.out.println("Created fetch packet");
-                fetch.type = Type.FETCH;
+                DbStore.reset();
+  
                 // Request more links
                 client.sendTCP(fetch);
-                System.out.println("Sent fetch packet");
             } else {
                 try {
                     this.sleep(3000);
@@ -217,5 +220,21 @@ public class Crawler extends Thread {
             }
         }
         System.out.println("Crawler has stopped");
+    }
+    /**
+     * chops a list into non-view sublists of length L
+     * @param list the list
+     * @param L the length
+     * @return the parts in a single list
+     */
+    static <T> List<List<T>> chopped(List<T> list, final int L) {
+        List<List<T>> parts = new ArrayList<List<T>>();
+        final int N = list.size();
+        for (int i = 0; i < N; i += L) {
+            parts.add(new ArrayList<T>(
+                list.subList(i, Math.min(N, i + L)))
+            );
+        }
+        return parts;
     }
 }
