@@ -1,9 +1,6 @@
 package net.pixomania.StatCrawl.server;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.serialize.CollectionSerializer;
-import com.esotericsoftware.kryo.serialize.EnumSerializer;
-import com.esotericsoftware.kryo.serialize.FieldSerializer;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Server;

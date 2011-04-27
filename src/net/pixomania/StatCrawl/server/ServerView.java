@@ -12,9 +12,12 @@ package net.pixomania.StatCrawl.server;
 
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
+import net.pixomania.StatCrawl.db.Db;
+import net.pixomania.StatCrawl.db.DbSingleton;
 
 /**
  *
@@ -24,6 +27,8 @@ public class ServerView extends javax.swing.JFrame {
     private PipedInputStream piOut;
     private PipedOutputStream poOut;
     private DbServer server = new DbServer();
+    private Preferences prefs = Preferences.userNodeForPackage(ServerView.class);
+    private Db db = DbSingleton.getDb();
     static {
        System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
     }
@@ -62,6 +67,31 @@ public class ServerView extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        serverSettingsWindow = new javax.swing.JFrame();
+        mainDbPanel = new javax.swing.JPanel();
+        mainDbHostLbl = new javax.swing.JLabel();
+        mainDbHostField = new javax.swing.JTextField();
+        mainDbPortLbl = new javax.swing.JLabel();
+        mainDbPortField = new javax.swing.JTextField();
+        mainDbUsernameLbl = new javax.swing.JLabel();
+        mainDbUsernameField = new javax.swing.JTextField();
+        mainDbPasswordLbl = new javax.swing.JLabel();
+        mainDbPasswordPfield = new javax.swing.JPasswordField();
+        mainDbDatabaseLbl = new javax.swing.JLabel();
+        mainDbDatabaseField = new javax.swing.JTextField();
+        serverSettingSaveBtn = new javax.swing.JButton();
+        serverSettingCancelBtn = new javax.swing.JButton();
+        countryDbPanel = new javax.swing.JPanel();
+        countryDbHostLbl = new javax.swing.JLabel();
+        countryDbHostField = new javax.swing.JTextField();
+        countryDbPortLbl = new javax.swing.JLabel();
+        countryDbPortField = new javax.swing.JTextField();
+        countryDbUsernameLbl = new javax.swing.JLabel();
+        countryDbUsernameField = new javax.swing.JTextField();
+        countryDbPasswordLbl = new javax.swing.JLabel();
+        countryDbPasswordPfield = new javax.swing.JPasswordField();
+        countryDbDatabaseLbl = new javax.swing.JLabel();
+        countryDbDatabaseField = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         console = new javax.swing.JTextArea();
         jToolBar1 = new javax.swing.JToolBar();
@@ -72,10 +102,167 @@ public class ServerView extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
-        jMenuItem2 = new javax.swing.JMenuItem();
-        jMenuItem3 = new javax.swing.JMenuItem();
+        settingsMenuItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuItem4 = new javax.swing.JMenuItem();
+
+        serverSettingsWindow.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        serverSettingsWindow.setTitle("Server Settings");
+        serverSettingsWindow.setResizable(false);
+
+        mainDbPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Main Database settings"));
+
+        mainDbHostLbl.setText("Host");
+
+        mainDbPortLbl.setText("Port");
+
+        mainDbUsernameLbl.setText("Username");
+
+        mainDbPasswordLbl.setText("Password");
+
+        mainDbDatabaseLbl.setText("Database");
+
+        javax.swing.GroupLayout mainDbPanelLayout = new javax.swing.GroupLayout(mainDbPanel);
+        mainDbPanel.setLayout(mainDbPanelLayout);
+        mainDbPanelLayout.setHorizontalGroup(
+            mainDbPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(mainDbHostLbl)
+            .addComponent(mainDbHostField, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+            .addComponent(mainDbPortLbl)
+            .addComponent(mainDbPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(mainDbUsernameLbl)
+            .addComponent(mainDbUsernameField, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+            .addComponent(mainDbPasswordLbl)
+            .addComponent(mainDbPasswordPfield, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+            .addGroup(mainDbPanelLayout.createSequentialGroup()
+                .addComponent(mainDbDatabaseLbl)
+                .addContainerGap())
+            .addComponent(mainDbDatabaseField, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+        );
+        mainDbPanelLayout.setVerticalGroup(
+            mainDbPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainDbPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(mainDbHostLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mainDbHostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mainDbPortLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mainDbPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mainDbUsernameLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mainDbUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mainDbPasswordLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mainDbPasswordPfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mainDbDatabaseLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mainDbDatabaseField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        serverSettingSaveBtn.setText("Save");
+        serverSettingSaveBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                serverSettingSaveBtnActionPerformed(evt);
+            }
+        });
+
+        serverSettingCancelBtn.setText("Cancel");
+        serverSettingCancelBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                serverSettingCancelBtnActionPerformed(evt);
+            }
+        });
+
+        countryDbPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Country Database settings"));
+        countryDbPanel.setAlignmentX(0.0F);
+        countryDbPanel.setAlignmentY(0.0F);
+
+        countryDbHostLbl.setText("Host");
+
+        countryDbPortLbl.setText("Port");
+
+        countryDbUsernameLbl.setText("Username");
+
+        countryDbPasswordLbl.setText("Password");
+
+        countryDbDatabaseLbl.setText("Database");
+
+        javax.swing.GroupLayout countryDbPanelLayout = new javax.swing.GroupLayout(countryDbPanel);
+        countryDbPanel.setLayout(countryDbPanelLayout);
+        countryDbPanelLayout.setHorizontalGroup(
+            countryDbPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(countryDbHostLbl)
+            .addComponent(countryDbHostField, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+            .addComponent(countryDbPortLbl)
+            .addComponent(countryDbPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(countryDbUsernameLbl)
+            .addComponent(countryDbUsernameField, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+            .addComponent(countryDbPasswordLbl)
+            .addComponent(countryDbPasswordPfield, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+            .addGroup(countryDbPanelLayout.createSequentialGroup()
+                .addComponent(countryDbDatabaseLbl)
+                .addContainerGap())
+            .addComponent(countryDbDatabaseField, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+        );
+        countryDbPanelLayout.setVerticalGroup(
+            countryDbPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(countryDbPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(countryDbHostLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(countryDbHostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(countryDbPortLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(countryDbPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(countryDbUsernameLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(countryDbUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(countryDbPasswordLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(countryDbPasswordPfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(countryDbDatabaseLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(countryDbDatabaseField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        javax.swing.GroupLayout serverSettingsWindowLayout = new javax.swing.GroupLayout(serverSettingsWindow.getContentPane());
+        serverSettingsWindow.getContentPane().setLayout(serverSettingsWindowLayout);
+        serverSettingsWindowLayout.setHorizontalGroup(
+            serverSettingsWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, serverSettingsWindowLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(serverSettingCancelBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 278, Short.MAX_VALUE)
+                .addComponent(serverSettingSaveBtn)
+                .addContainerGap())
+            .addGroup(serverSettingsWindowLayout.createSequentialGroup()
+                .addComponent(mainDbPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(countryDbPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        serverSettingsWindowLayout.setVerticalGroup(
+            serverSettingsWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(serverSettingsWindowLayout.createSequentialGroup()
+                .addGroup(serverSettingsWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(serverSettingsWindowLayout.createSequentialGroup()
+                        .addComponent(mainDbPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(serverSettingCancelBtn))
+                    .addGroup(serverSettingsWindowLayout.createSequentialGroup()
+                        .addComponent(countryDbPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(serverSettingSaveBtn)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("StatCrawl - Server");
@@ -109,11 +296,13 @@ public class ServerView extends javax.swing.JFrame {
 
         jMenu2.setText("Edit");
 
-        jMenuItem2.setText("Settings");
-        jMenu2.add(jMenuItem2);
-
-        jMenuItem3.setText("Add ID");
-        jMenu2.add(jMenuItem3);
+        settingsMenuItem.setText("Settings");
+        settingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                settingsMenuItemActionPerformed(evt);
+            }
+        });
+        jMenu2.add(settingsMenuItem);
         jMenu2.add(jSeparator1);
 
         jMenuItem4.setText("Switch to statview");
@@ -148,11 +337,81 @@ public class ServerView extends javax.swing.JFrame {
         
         // If the button is selected we should run, if the button get's untoggled we should cancel
         if(btn.isSelected()){
-            server.start();
+            if(db.isConnected()){
+                server.start();
+            } else {
+                JOptionPane.showMessageDialog(rootPane, "There is no database connection. Wrong info in settings menu?");
+                btn.setSelected(false);
+            }
         } else {
             server.stop();
         }
     }//GEN-LAST:event_tglServerTglActionPerformed
+
+    /**
+     * Bring up the Settings window when the user clicks the settings menu item
+     * @param evt 
+     */
+    private void settingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsMenuItemActionPerformed
+        // If user already got saved values, use them
+        mainDbHostField.setText(prefs.get("mainDbHost", ""));
+        mainDbPortField.setText(prefs.getInt("mainDbPort", 3306)+"");
+        mainDbUsernameField.setText(prefs.get("mainDbUsername", ""));
+        mainDbPasswordPfield.setText(prefs.get("mainDbPassword", ""));
+        mainDbDatabaseField.setText(prefs.get("mainDbDatabase", ""));
+        
+        countryDbHostField.setText(prefs.get("countryDbHost", ""));
+        countryDbPortField.setText(prefs.getInt("countryDbPort", 3306)+"");
+        countryDbUsernameField.setText(prefs.get("countryDbUsername", ""));
+        countryDbPasswordPfield.setText(prefs.get("countryDbPassword", ""));
+        countryDbDatabaseField.setText(prefs.get("countryDbDatabase", ""));
+        
+        serverSettingsWindow.pack();
+        serverSettingsWindow.setVisible(true);
+    }//GEN-LAST:event_settingsMenuItemActionPerformed
+
+    /**
+     * Save the info from the fields using the Preferences API
+     * @param evt 
+     */
+    private void serverSettingSaveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_serverSettingSaveBtnActionPerformed
+        if(!mainDbHostField.getText().isEmpty() &&
+           !mainDbPortField.getText().isEmpty() &&
+           !mainDbUsernameField.getText().isEmpty() &&
+           !mainDbDatabaseField.getText().isEmpty() &&
+           !countryDbHostField.getText().isEmpty() &&
+           !countryDbPortField.getText().isEmpty() &&
+           !countryDbUsernameField.getText().isEmpty() &&
+           !countryDbDatabaseField.getText().isEmpty()) {
+                // Save the databases info into the prefs
+                prefs.put("mainDbHost", mainDbHostField.getText());
+                prefs.putInt("mainDbPort", Integer.parseInt(mainDbPortField.getText()));
+                prefs.put("mainDbUsername", mainDbUsernameField.getText());
+                prefs.put("mainDbPassword", new String(mainDbPasswordPfield.getPassword()));
+                prefs.put("mainDbDatabase", mainDbDatabaseField.getText());
+
+                prefs.put("countryDbHost", countryDbHostField.getText());
+                prefs.putInt("countryDbPort", Integer.parseInt(countryDbPortField.getText()));
+                prefs.put("countryDbUsername", countryDbUsernameField.getText());
+                prefs.put("countryDbPassword", new String(countryDbPasswordPfield.getPassword()));
+                prefs.put("countryDbDatabase", countryDbDatabaseField.getText());
+                
+                // Nullify the db so we can reconnect using the new settings
+                DbSingleton.nullify();
+                db = DbSingleton.getDb();
+                serverSettingsWindow.dispose();
+        } else {
+            JOptionPane.showMessageDialog(rootPane, "Oops, a field is empty???");
+        }
+    }//GEN-LAST:event_serverSettingSaveBtnActionPerformed
+    
+    /**
+     * Dispose the window
+     * @param evt 
+     */
+    private void serverSettingCancelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_serverSettingCancelBtnActionPerformed
+        serverSettingsWindow.dispose();
+    }//GEN-LAST:event_serverSettingCancelBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -169,18 +428,42 @@ public class ServerView extends javax.swing.JFrame {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public static javax.swing.JTextArea console;
+    private javax.swing.JTextField countryDbDatabaseField;
+    private javax.swing.JLabel countryDbDatabaseLbl;
+    private javax.swing.JTextField countryDbHostField;
+    private javax.swing.JLabel countryDbHostLbl;
+    private javax.swing.JPanel countryDbPanel;
+    private javax.swing.JLabel countryDbPasswordLbl;
+    private javax.swing.JPasswordField countryDbPasswordPfield;
+    private javax.swing.JTextField countryDbPortField;
+    private javax.swing.JLabel countryDbPortLbl;
+    private javax.swing.JTextField countryDbUsernameField;
+    private javax.swing.JLabel countryDbUsernameLbl;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JTextField mainDbDatabaseField;
+    private javax.swing.JLabel mainDbDatabaseLbl;
+    private javax.swing.JTextField mainDbHostField;
+    private javax.swing.JLabel mainDbHostLbl;
+    private javax.swing.JPanel mainDbPanel;
+    private javax.swing.JLabel mainDbPasswordLbl;
+    private javax.swing.JPasswordField mainDbPasswordPfield;
+    private javax.swing.JTextField mainDbPortField;
+    private javax.swing.JLabel mainDbPortLbl;
+    private javax.swing.JTextField mainDbUsernameField;
+    private javax.swing.JLabel mainDbUsernameLbl;
     private static javax.swing.JTextField portField;
     private javax.swing.JLabel portLbl;
+    private javax.swing.JButton serverSettingCancelBtn;
+    private javax.swing.JButton serverSettingSaveBtn;
+    private javax.swing.JFrame serverSettingsWindow;
+    private javax.swing.JMenuItem settingsMenuItem;
     private static javax.swing.JToggleButton tglServerTgl;
     // End of variables declaration//GEN-END:variables
 }

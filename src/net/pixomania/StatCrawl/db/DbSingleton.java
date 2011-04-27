@@ -15,9 +15,16 @@ public class DbSingleton {
      * Returns the Database object
      * @return the database object
      */
-    public static synchronized Db getDb(){
+    public static Db getDb(){
         if(db == null) db = new Db();
         return db;
+    }
+    
+    /**
+     * Reset the database if we change settings
+     */
+    public static void nullify(){
+        db = null;
     }
     
     @Override

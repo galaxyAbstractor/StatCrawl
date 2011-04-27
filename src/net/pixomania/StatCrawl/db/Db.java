@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
+import net.pixomania.StatCrawl.server.ServerView;
 import net.pixomania.StatCrawl.stats.City;
 import net.pixomania.StatCrawl.stats.Region;
 import net.pixomania.StatCrawl.stats.Country;
@@ -27,24 +29,43 @@ public class Db {
     private Connection conn = null;
     private Connection countryConn = null;
     
+    private Preferences prefs = Preferences.userNodeForPackage(ServerView.class);
+    
     public Db(){
         // Establish a connection to the database
         try {
-           // Change this to your installation
-           String userName = "root";
-           String password = "";
-           String url = "jdbc:mysql://localhost/StatCrawl";
-           String url2 = "jdbc:mysql://localhost/country";
-           
-           // Create a new mySQL connection and connect to them
-           Class.forName ("com.mysql.jdbc.Driver").newInstance();
-           conn = DriverManager.getConnection (url, userName, password);
-           countryConn = DriverManager.getConnection (url2, userName, password);
-           
-           System.out.println ("Database connection established");
+            String mainHost = prefs.get("mainDbHost", null);
+            String mainUsername = prefs.get("mainDbUsername", null);
+            String mainPort = prefs.getInt("mainDbPort", 3306)+"";
+            String mainPassword = prefs.get("mainDbPassword", null);
+            String mainDatabase = prefs.get("mainDbDatabase", null);
+            
+            String countryHost = prefs.get("countryDbHost", null);
+            String countryUsername = prefs.get("countryDbUsername", null);
+            String countryPort = prefs.getInt("countryDbPort", 3306)+"";
+            String countryPassword = prefs.get("countryDbPassword", null);
+            String countryDatabase = prefs.get("countryDbDatabase", null);
+            
+            String url = "jdbc:mysql://"+mainHost+":"+mainPort+"/"+mainDatabase;
+            String url2 = "jdbc:mysql://"+countryHost+":"+countryPort+"/"+countryDatabase;
+
+            // Create a new mySQL connection and connect to them
+            Class.forName ("com.mysql.jdbc.Driver").newInstance();
+            conn = DriverManager.getConnection(url, mainUsername, mainPassword);
+            countryConn = DriverManager.getConnection(url2, countryUsername, countryPassword);
+
+            System.out.println ("Database connection established");
         } catch (Exception e)  {
-           System.err.println ("Cannot connect to database server");
+            System.err.println ("Cannot connect to database server - check settings");
         }
+    }
+    
+    /**
+     * Returns if we are still connected
+     * @return are we connected?
+     */
+    public boolean isConnected(){
+        return (conn != null && countryConn != null) ? true : false;
     }
     
     /**
