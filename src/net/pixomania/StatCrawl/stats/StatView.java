@@ -1,7 +1,11 @@
 package net.pixomania.StatCrawl.stats;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import javax.swing.JFrame;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import net.pixomania.StatCrawl.db.Db;
 import net.pixomania.StatCrawl.db.DbSingleton;
 
@@ -17,7 +21,36 @@ public class StatView extends javax.swing.JFrame {
     /** Creates new form Main */
     public StatView() {
         initComponents();
-              
+        
+        int[] ip = db.getIPTotalCount();
+        totalIPCrawlsLbl.setText(ip[0]+"");
+        totalIPCountLbl.setText(ip[1]+"");
+        
+        int[] host = db.getHostTotalCount();
+        totalHostCrawlsLbl.setText(host[0]+"");
+        totalHostCountLbl.setText(host[1]+"");
+        
+        Object[][] topIPs = db.getTopIPs();
+        TableModel topIpModel = new DefaultTableModel(topIPs, new String[]{"IP","Count"});
+        topIPTable.setModel(topIpModel);
+        
+        TableRowSorter<TableModel> ipSorter = new TableRowSorter<TableModel>(topIPTable.getModel());
+        Comparator<Integer> comparator = new Comparator<Integer>() {
+            @Override
+            public int compare(Integer s1, Integer s2) {
+                return s1.compareTo(s2);
+            }
+        };
+        ipSorter.setComparator(1, comparator);
+        topIPTable.setRowSorter(ipSorter);
+        
+        Object[][] topHosts = db.getTopHosts();
+        TableModel topHostModel = new DefaultTableModel(topHosts, new String[]{"Host","Count"});
+        topHostTable.setModel(topHostModel);
+        TableRowSorter<TableModel> hostSorter = new TableRowSorter<TableModel>(topHostTable.getModel());
+        hostSorter.setComparator(1, comparator);
+        topHostTable.setRowSorter(hostSorter);
+        
     }
 
     /** This method is called from within the constructor to
@@ -28,6 +61,7 @@ public class StatView extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
@@ -54,6 +88,23 @@ public class StatView extends javax.swing.JFrame {
             root.add(country);
         }
         jXTreeTable1 = new org.jdesktop.swingx.JXTreeTable(new LocationTreeTableModel(root));
+        jPanel2 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        totalIPCountLbl = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        topIPTable = new javax.swing.JTable();
+        jLabel2 = new javax.swing.JLabel();
+        totalIPCrawlsLbl = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        totalHostCountLbl = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        topHostTable = new javax.swing.JTable();
+        jLabel7 = new javax.swing.JLabel();
+        totalHostCrawlsLbl = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -72,6 +123,156 @@ public class StatView extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Country", jPanel1);
 
+        jPanel2.setMinimumSize(new java.awt.Dimension(602, 521));
+        jPanel2.setLayout(new java.awt.GridBagLayout());
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("IP-addreses"));
+        jPanel3.setMinimumSize(new java.awt.Dimension(301, 476));
+        jPanel3.setPreferredSize(new java.awt.Dimension(331, 476));
+
+        jLabel1.setText("Total IPs:");
+
+        totalIPCountLbl.setText("0");
+
+        jLabel3.setText("Top IPs:");
+
+        topIPTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "IP", "Count"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Integer.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(topIPTable);
+
+        jLabel2.setText("Total crawls:");
+
+        totalIPCrawlsLbl.setText("0");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 319, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(jLabel3)
+                .addContainerGap())
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel1))
+                .addGap(231, 231, 231)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(totalIPCountLbl)
+                    .addComponent(totalIPCrawlsLbl))
+                .addContainerGap(21, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(totalIPCountLbl))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(totalIPCrawlsLbl))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridheight = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_LEADING;
+        jPanel2.add(jPanel3, gridBagConstraints);
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Hosts"));
+        jPanel4.setMinimumSize(new java.awt.Dimension(301, 501));
+        jPanel4.setPreferredSize(new java.awt.Dimension(331, 501));
+
+        jLabel4.setText("Total Hosts:");
+
+        totalHostCountLbl.setText("0");
+
+        jLabel6.setText("Top Hosts:");
+
+        topHostTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Host", "Count"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Integer.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane3.setViewportView(topHostTable);
+
+        jLabel7.setText("Total crawls:");
+
+        totalHostCrawlsLbl.setText("0");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 319, Short.MAX_VALUE)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jLabel6)
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel7))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 219, Short.MAX_VALUE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(totalHostCrawlsLbl)
+                    .addComponent(totalHostCountLbl))
+                .addGap(33, 33, 33))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(totalHostCountLbl))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(totalHostCrawlsLbl))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 396, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_TRAILING;
+        jPanel2.add(jPanel4, gridBagConstraints);
+
+        jTabbedPane1.addTab("IP/Host", jPanel2);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -80,7 +281,7 @@ public class StatView extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 538, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 538, Short.MAX_VALUE)
         );
 
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -100,10 +301,27 @@ public class StatView extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
     private org.jdesktop.swingx.JXTreeTable jXTreeTable1;
+    private javax.swing.JTable topHostTable;
+    private javax.swing.JTable topIPTable;
+    private javax.swing.JLabel totalHostCountLbl;
+    private javax.swing.JLabel totalHostCrawlsLbl;
+    private javax.swing.JLabel totalIPCountLbl;
+    private javax.swing.JLabel totalIPCrawlsLbl;
     // End of variables declaration//GEN-END:variables
 
 }

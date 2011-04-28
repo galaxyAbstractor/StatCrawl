@@ -568,4 +568,112 @@ public class Db {
         
         return countryList;
     }
+    
+    /**
+     * Returns total total count of IPs crawled
+     * @return 
+     */
+    public int[] getIPTotalCount(){
+        try {
+            String countQuery = "SELECT count FROM ip";
+                    
+            Statement rst = conn.createStatement();
+            ResultSet count = rst.executeQuery(countQuery);
+            
+            int total = 0;
+            int ip = 0;
+            while(count.next()){
+                ip++;
+                total += count.getInt("count");
+            }
+            return new int[]{total,ip};
+        } catch (SQLException ex) {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return new int[]{-1,-1};
+    }
+    
+    /**
+     * Gets all the IPs from the table, sorts them high to low, and then converts 
+     * the list to String[][] as required by DefaultTableModel
+     * @return Object[][] with the data
+     */
+    public Object[][] getTopIPs(){
+       try {
+            String ipQuery = "SELECT * FROM ip ORDER BY count DESC";
+                    
+            Statement rst = conn.createStatement();
+            ResultSet ips = rst.executeQuery(ipQuery);
+            
+            ArrayList<Object[]> list = new ArrayList<Object[]>();
+            while(ips.next()){
+                list.add(new Object[]{ips.getString("ip"),ips.getInt("count")});
+            }
+            
+            Object[][] stringList = new Object[list.size()][2];
+            for(int i = 0;i < list.size();i++){
+                stringList[i][0] = list.get(i)[0];
+                stringList[i][1] = list.get(i)[1];
+            }
+            
+            return stringList;
+        } catch (SQLException ex) {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    /**
+     * Returns total total count of Hosts crawled
+     * @return 
+     */
+    public int[] getHostTotalCount(){
+        try {
+            String countQuery = "SELECT count FROM hosts";
+                    
+            Statement rst = conn.createStatement();
+            ResultSet count = rst.executeQuery(countQuery);
+            
+            int total = 0;
+            int hosts = 0;
+            while(count.next()){
+                hosts++;
+                total += count.getInt("count");
+            }
+            return new int[]{total,hosts};
+        } catch (SQLException ex) {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return new int[]{-1,-1};
+    }
+    
+    /**
+     * Gets all the hosts from the table, sorts them high to low, and then converts 
+     * the list to String[][] as required by DefaultTableModel
+     * @return Object[][] with the data
+     */
+    public Object[][] getTopHosts(){
+       try {
+            String hostQuery = "SELECT * FROM hosts ORDER BY count DESC";
+                    
+            Statement rst = conn.createStatement();
+            ResultSet hosts = rst.executeQuery(hostQuery);
+            
+            ArrayList<Object[]> list = new ArrayList<Object[]>();
+            while(hosts.next()){
+                list.add(new Object[]{hosts.getString("host"),hosts.getInt("count")});
+            }
+            
+            Object[][] objectList = new Object[list.size()][2];
+            for(int i = 0;i < list.size();i++){
+                objectList[i][0] = list.get(i)[0];
+                objectList[i][1] = list.get(i)[1];
+            }
+            
+            return objectList;
+        } catch (SQLException ex) {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
 }

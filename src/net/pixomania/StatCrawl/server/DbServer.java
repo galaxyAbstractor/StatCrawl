@@ -30,7 +30,7 @@ public class DbServer {
         try {
             dbQueue.resetQueue();
             dbQueue.start();
-            server = new Server(30000,30000);
+            server = new Server(60000,60000);
             
             int port = ServerView.getPort();
             if(port == -1) {
@@ -65,12 +65,13 @@ public class DbServer {
                                   connection.sendTCP(p);
                                   break;
                               case QUERIES:
-                                  System.out.println("Got Queries");
                                   dbQueue.addAll((Collection<QueueItem>) request.data);
-                                  
+                                  break;
+                              case PENDING:
+                                  db.insertPending((String) request.data);
                                   break;
                           }
-                       }
+                       } 
                     }
                     @Override
                     public void connected (Connection connection) {

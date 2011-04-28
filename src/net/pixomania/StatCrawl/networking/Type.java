@@ -5,6 +5,6 @@ package net.pixomania.StatCrawl.networking;
  * @author galaxyAbstractor
  */
 public enum Type {
-    TOCRAWL, FETCH, QUERIES
+    TOCRAWL, FETCH, QUERIES, PENDING
 }
 

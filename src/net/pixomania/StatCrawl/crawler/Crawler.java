@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import net.pixomania.StatCrawl.client.ClientSingleton;
 import net.pixomania.StatCrawl.client.ClientView;
 import net.pixomania.StatCrawl.networking.DbStore;
@@ -39,6 +40,7 @@ public class Crawler extends Thread {
     private int doneParsing;
     private int sitesToCrawl;
     
+    
     /**
      * Indicates to the crawler that it needs to stop
      */
@@ -59,8 +61,20 @@ public class Crawler extends Thread {
      */
     public synchronized void setPending(LinkedList<String> pending){
         this.pending = pending;
-        this.sitesToCrawl = pending.size();
-        this.notify();
+        if(pending.size() == 0){
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println("Did not get any new links in this packet - requesting again");
+                    Packet fetch = new Packet();
+                    fetch.type = Type.FETCH;
+                    client.sendTCP(fetch);
+                }
+            });
+        } else {
+            this.sitesToCrawl = pending.size();
+            this.notify();
+        }
     }
 
     public int getSitesToCrawl(){
@@ -87,7 +101,6 @@ public class Crawler extends Thread {
         // Get the first ten URLs from the database
         Packet fetch = new Packet();
         fetch.type = Type.FETCH;
-        // Send it to the Server
         client.sendTCP(fetch);
 
         // Crawl and parse for links until there is no more pending URL's
@@ -96,7 +109,7 @@ public class Crawler extends Thread {
 
             // If the pending list is empty, there may still be parsers that
             // parses. Wait 5 seconds, then start from the beginning of the loop
-            if(pending.isEmpty() && (doneParsing == 0)){
+            if(pending.isEmpty() && (sitesToCrawl == 0)){
                 try {
                     this.wait();
                 } catch (InterruptedException ex) {
@@ -177,7 +190,24 @@ public class Crawler extends Thread {
                     Parser parser = new Parser(html, url);
                     parser.execute();
                 } catch (IOException ex) {
-                    Logger.getLogger(Crawler.class.getName()).log(Level.SEVERE, null, ex);
+                    // Something went wrong, like a HTTP error code was received, like 404 or 403
+                    String host = url2.getHost();
+                    try {
+                        QueueItem qi = new QueueItem();
+                        qi.data = host + " " + InetAddress.getByName(host).getHostAddress() + " " + ex.getMessage().substring(0, 2);
+                        qi.operation = Operation.ERROR;
+                        DbStore.add(qi);
+                        // Remove one from the counter
+                        sitesToCrawl--;
+                    } catch (UnknownHostException ex1) {
+                        // Remove one from the counter
+                        sitesToCrawl--;
+                        QueueItem qi = new QueueItem();
+                        qi.data = host + " unknownIP "+ ex.getMessage().substring(0, 2);
+                        qi.operation = Operation.ERROR;
+                        DbStore.add(qi);
+                    }
+                    continue;
                 }
 
             }
@@ -186,7 +216,9 @@ public class Crawler extends Thread {
             if(doneParsing == sitesToCrawl){
                 // Send the stored queries to the server. Then reset the local queue.
                 List<List<QueueItem>> list = chopped(DbStore.getList(), 500);
+                
                 for(int i = 0; i < list.size();i++){
+                    System.out.println("Chopped list #"+i);
                     // Send the stored queries to the server. Then reset the local queue.
                     Packet storedQueries = new Packet();
                     storedQueries.data = list.get(i);
@@ -196,7 +228,7 @@ public class Crawler extends Thread {
                     if(i != list.size()-1){
                         // Wait a bit to send next package, otherwise the computer may suffer connection loss
                         try {
-                            this.sleep(5000);
+                            this.sleep(3000);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Crawler.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -208,7 +240,10 @@ public class Crawler extends Thread {
                 sitesToCrawl = 0;
                 ClientView.clearRows();
                 DbStore.reset();
-  
+                
+                fetch = new Packet();
+                fetch.data = "meh";
+                fetch.type = Type.FETCH;
                 // Request more links
                 client.sendTCP(fetch);
             } else {

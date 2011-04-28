@@ -1,16 +1,12 @@
 package net.pixomania.StatCrawl.client;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.serialize.CollectionSerializer;
-import com.esotericsoftware.kryo.serialize.EnumSerializer;
-import com.esotericsoftware.kryo.serialize.FieldSerializer;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -185,55 +181,71 @@ public class ClientView extends javax.swing.JFrame {
 
         // If the button is selected we should run, if the button get's untoggled we should cancel
         if (btn.isSelected()) {
-            
-            client = ClientSingleton.getClient();
-            Log.set(Log.LEVEL_DEBUG);
-            Kryo kryo = client.getKryo();
+            if(!urlField.getText().startsWith("http://") &&
+               !urlField.getText().startsWith("https://")) {
+                JOptionPane.showMessageDialog(rootPane, "Invalid URL\n Either there is no URL, or it doesn't start with http(s)://");
+                btn.setSelected(false);
+            } else {
+                client = ClientSingleton.getClient();
+                Log.set(Log.LEVEL_DEBUG);
+                Kryo kryo = client.getKryo();
 
-            
-            // Register the classes we are sending
-            kryo.register(Packet.class);
-            kryo.register(net.pixomania.StatCrawl.networking.Type.class);
-            kryo.register(QueueItem.class);
-            kryo.register(ArrayList.class);
-            kryo.register(LinkedList.class);
-            kryo.register(Operation.class);
 
-            client.start();
-            client.setName("hej");
+                // Register the classes we are sending
+                kryo.register(Packet.class);
+                kryo.register(net.pixomania.StatCrawl.networking.Type.class);
+                kryo.register(QueueItem.class);
+                kryo.register(ArrayList.class);
+                kryo.register(LinkedList.class);
+                kryo.register(Operation.class);
 
-            try {
+                client.start();
+                client.setName("hej");
 
-                client.connect(5000, hostField.getText(), Integer.parseInt(portField.getText()));
-                client.addListener(new Listener() {
+                try {
 
-                    @Override
-                    public void received(Connection connection, Object object) {
-                        if (object instanceof Packet) {
-                            // Get our packet
-                            Packet response = (Packet) object;
+                    client.connect(30000, hostField.getText(), Integer.parseInt(portField.getText()));
+                    client.setKeepAliveTCP(5000);
+                    client.addListener(new Listener() {
 
-                            // Check the type of the packet. Different types are defined in the Type enum
-                            switch(response.type){
-                                case TOCRAWL:
-                                    // We got a packet with links to crawl. Lets crawl them!
-                                    crawler.setPending((LinkedList<String>) response.data);
-                                    break;
-                                default:
-                                    break;
-                            }
+                        @Override
+                        public void received(Connection connection, Object object) {
+                            if (object instanceof Packet) {
+                                // Get our packet
+                                Packet response = (Packet) object;
+
+                                // Check the type of the packet. Different types are defined in the Type enum
+                                switch(response.type){
+                                    case TOCRAWL:
+                                        // We got a packet with links to crawl. Lets crawl them!
+                                        crawler.setPending((LinkedList<String>) response.data);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            } 
                         }
-                    }
-                });
-                crawler.resetCrawler();
-                crawler.start();
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(rootPane, "illegal port");
-                connectTgl.setSelected(false);
-            } catch (IOException e) {
-                System.out.println("IOException");
-            }
+                        
+                        @Override
+                        public void disconnected(Connection connection){
+                            System.out.println("Disconnected :s");
+                        }
+                    });
 
+                    Packet p = new Packet();
+                    p.data = urlField.getText();
+                    p.type = net.pixomania.StatCrawl.networking.Type.PENDING;
+                    client.sendTCP(p);
+                    
+                    crawler.resetCrawler();
+                    crawler.start();
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(rootPane, "illegal port");
+                    connectTgl.setSelected(false);
+                } catch (IOException e) {
+                    System.out.println("IOException");
+                }
+            }
         } else {
             crawler.stopCrawler();
             client.stop();
