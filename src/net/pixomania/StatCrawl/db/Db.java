@@ -1,5 +1,6 @@
 package net.pixomania.StatCrawl.db;
 
+import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
@@ -27,6 +28,7 @@ import net.pixomania.StatCrawl.stats.Location;
 public class Db {
 
     private Connection conn = null;
+    private Connection conn2 = null;
     private Connection countryConn = null;
     
     private Preferences prefs = Preferences.userNodeForPackage(ServerView.class);
@@ -34,6 +36,7 @@ public class Db {
     public Db(){
         // Establish a connection to the database
         try {
+            // Get all the saved preferences to connect to the databases
             String mainHost = prefs.get("mainDbHost", null);
             String mainUsername = prefs.get("mainDbUsername", null);
             String mainPort = prefs.getInt("mainDbPort", 3306)+"";
@@ -52,6 +55,7 @@ public class Db {
             // Create a new mySQL connection and connect to them
             Class.forName ("com.mysql.jdbc.Driver").newInstance();
             conn = DriverManager.getConnection(url, mainUsername, mainPassword);
+            conn2 = DriverManager.getConnection(url, mainUsername, mainPassword);
             countryConn = DriverManager.getConnection(url2, countryUsername, countryPassword);
 
             System.out.println ("Database connection established");
@@ -182,7 +186,7 @@ public class Db {
         LinkedList<String> list = new LinkedList<String>();
         try {
             String query = "SELECT url FROM pending";
-            PreparedStatement statement = conn.prepareStatement(query); 
+            PreparedStatement statement = conn2.prepareStatement(query); 
             
             // Fetch max 10 rows from the table
             statement.setMaxRows(10); 
@@ -575,51 +579,65 @@ public class Db {
      */
     public int[] getIPTotalCount(){
         try {
+            // Query to return the counts from the IP table
             String countQuery = "SELECT count FROM ip";
-                    
+            
+            // Create the statement and execute
             Statement rst = conn.createStatement();
             ResultSet count = rst.executeQuery(countQuery);
             
             int total = 0;
             int ip = 0;
+            // Loop trough the rows, adding together the totals and count the rows
             while(count.next()){
                 ip++;
                 total += count.getInt("count");
             }
+            // Return it
             return new int[]{total,ip};
         } catch (SQLException ex) {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
         }
+        // Something is wrong
         return new int[]{-1,-1};
     }
     
     /**
      * Gets all the IPs from the table, sorts them high to low, and then converts 
-     * the list to String[][] as required by DefaultTableModel
+     * the list to Object[][] as required by DefaultTableModel
      * @return Object[][] with the data
      */
     public Object[][] getTopIPs(){
-       try {
+        try {
+            // This query fetches everything from the IP table and orders it
+            // descended by count
             String ipQuery = "SELECT * FROM ip ORDER BY count DESC";
-                    
+
+            // Create and execute the statement
             Statement rst = conn.createStatement();
             ResultSet ips = rst.executeQuery(ipQuery);
-            
+
+            // Create the list where we store the rows
             ArrayList<Object[]> list = new ArrayList<Object[]>();
+            
+            // Add the row to the list
             while(ips.next()){
                 list.add(new Object[]{ips.getString("ip"),ips.getInt("count")});
             }
-            
+
             Object[][] stringList = new Object[list.size()][2];
+            // Convert the list into a two-dimensional array so the TableModel gets happy
             for(int i = 0;i < list.size();i++){
                 stringList[i][0] = list.get(i)[0];
                 stringList[i][1] = list.get(i)[1];
             }
             
+            // Return the list
             return stringList;
         } catch (SQLException ex) {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
         }
+        // Something went wrong
         return null;
     }
     
@@ -629,21 +647,26 @@ public class Db {
      */
     public int[] getHostTotalCount(){
         try {
+            // Get the count from the hosts table
             String countQuery = "SELECT count FROM hosts";
                     
+            // Create and execute the query
             Statement rst = conn.createStatement();
             ResultSet count = rst.executeQuery(countQuery);
             
             int total = 0;
             int hosts = 0;
+            // Gather the totals by going trough the rows
             while(count.next()){
                 hosts++;
                 total += count.getInt("count");
             }
+            // Return a new int[]
             return new int[]{total,hosts};
         } catch (SQLException ex) {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
         }
+        // Something is wrong
         return new int[]{-1,-1};
     }
     
@@ -653,27 +676,242 @@ public class Db {
      * @return Object[][] with the data
      */
     public Object[][] getTopHosts(){
-       try {
+        try {
+            // Get everything from the hosts table, sorted by count high-to-low
             String hostQuery = "SELECT * FROM hosts ORDER BY count DESC";
-                    
+                 
+            // Create and execute the query
             Statement rst = conn.createStatement();
             ResultSet hosts = rst.executeQuery(hostQuery);
             
+            // Where we will store the rows
             ArrayList<Object[]> list = new ArrayList<Object[]>();
+            
+            // Add the rows to the list
             while(hosts.next()){
                 list.add(new Object[]{hosts.getString("host"),hosts.getInt("count")});
             }
             
             Object[][] objectList = new Object[list.size()][2];
+            // Convert it to a two-dimensional array
             for(int i = 0;i < list.size();i++){
                 objectList[i][0] = list.get(i)[0];
                 objectList[i][1] = list.get(i)[1];
             }
-            
+            // Return it
             return objectList;
         } catch (SQLException ex) {
             Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
         }
+        // Something is wrong
         return null;
+    }
+    
+    /**
+     * Returns total total count of images
+     * @return 
+     */
+    public Object[] getImageTotalCount(){
+        try {
+            // select everything from the images table
+            String countQuery = "SELECT * FROM images";
+                    
+            // Create and execute the statement
+            Statement rst = conn.createStatement();
+            ResultSet count = rst.executeQuery(countQuery);
+            
+            double total = 0;
+            int types = 0;
+            double size = 0;
+            // Gather the totals and size
+            while(count.next()){
+                types++;
+                total += count.getInt("count");
+                size += count.getInt("size");
+            }
+            
+            // Calculate the average size and convert it to KBs
+            double averageSize = (size/total)/1024;
+            
+            // Convert size to MBs
+            size = (size/1024)/1024;
+            
+            // Create a new BigDecimal so we can round it to 3 decimals
+            BigDecimal sizeBd = new BigDecimal(size);
+            sizeBd = sizeBd.setScale(3,BigDecimal.ROUND_HALF_UP);
+            size = sizeBd.doubleValue();
+
+            // Round this one too
+            BigDecimal avSizeBd = new BigDecimal(averageSize);
+            avSizeBd = avSizeBd.setScale(3,BigDecimal.ROUND_HALF_UP);
+            averageSize = avSizeBd.doubleValue();
+            
+            // Return a new object
+            return new Object[]{(int) total,types, size+"MB", averageSize+"KB"};
+        } catch (SQLException ex) {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        // Something is wrong
+        return new Object[]{-1,-1,-1,-1};
+    }
+    
+    /**
+     * Gets all the images from the table, sorts them high to low, and then converts 
+     * the list to String[][] as required by DefaultTableModel
+     * @return Object[][] with the data
+     */
+    public Object[][] getTopImageTypes(){
+        try {
+            // Get the image types for the table model, sorted by count
+            String hostQuery = "SELECT * FROM images ORDER BY count DESC";
+                    
+            // Create and execute the statement
+            Statement rst = conn.createStatement();
+            ResultSet images = rst.executeQuery(hostQuery);
+            
+            // Create the array to store
+            ArrayList<Object[]> list = new ArrayList<Object[]>();
+            
+            // Put the rows into the list
+            while(images.next()){
+                String extension = images.getString("extension");
+                int count = images.getInt("count");
+                double size = images.getInt("size");
+                
+                // Convert average size to KB
+                double averageSize = (size/count)/1024;
+                
+                // Convert Size to MB
+                size = (size/1024)/1024;
+                
+                // Round size to 3 decimals
+                BigDecimal sizeBd = new BigDecimal(size);
+                sizeBd = sizeBd.setScale(3,BigDecimal.ROUND_HALF_UP);
+                size = sizeBd.doubleValue();
+
+                // Round average Size to 3 decimals
+                BigDecimal avSizeBd = new BigDecimal(averageSize);
+                avSizeBd = avSizeBd.setScale(3,BigDecimal.ROUND_HALF_UP);
+                averageSize = avSizeBd.doubleValue();
+
+                // Add it to the list
+                list.add(new Object[]{extension,size,averageSize,count});
+            }
+            
+            // Create a 2 dimensional Object array and convert the list to it
+            Object[][] objectList = new Object[list.size()][4];
+            for(int i = 0;i < list.size();i++){
+                objectList[i][0] = list.get(i)[0];
+                objectList[i][1] = list.get(i)[1];
+                objectList[i][2] = list.get(i)[2];
+                objectList[i][3] = list.get(i)[3];
+            }
+            
+            // Return it
+            return objectList;
+        } catch (SQLException ex) {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        // wrong
+        return null;
+    }
+    
+    /**
+     * Returns total total count of Hosts crawled
+     * @return 
+     */
+    public int[] getErrorTotalCount(){
+        try {
+            // Get the error count
+            String countQuery = "SELECT count FROM errors";
+                    
+            // Create and execute the query
+            Statement rst = conn.createStatement();
+            ResultSet count = rst.executeQuery(countQuery);
+            
+            int total = 0;
+            int errors = 0;
+            // Count the totals
+            while(count.next()){
+                errors++;
+                total += count.getInt("count");
+            }
+            // Retuern it
+            return new int[]{total,errors};
+        } catch (SQLException ex) {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        // Something is wrong
+        return new int[]{-1,-1};
+    }
+    
+    /**
+     * Gets all the errors from the table, sorts them high to low, and then converts 
+     * the list to Object[][] as required by DefaultTableModel
+     * @return Object[][] with the data
+     */
+    public Object[][] getTopErrors(){
+        try {
+            // Get the data for the ErrorModel
+            String hostQuery = "SELECT * FROM errors ORDER BY count DESC";
+                    
+            // Create the statement and execute it
+            Statement rst = conn.createStatement();
+            ResultSet hosts = rst.executeQuery(hostQuery);
+            
+            // Create the storage list
+            ArrayList<Object[]> list = new ArrayList<Object[]>();
+            
+            // Put the rows in the list
+            while(hosts.next()){
+                list.add(new Object[]{hosts.getString("code"),hosts.getInt("count")});
+            }
+            
+            // Convert the list to a two-dimensional array
+            Object[][] objectList = new Object[list.size()][2];
+            for(int i = 0;i < list.size();i++){
+                objectList[i][0] = list.get(i)[0];
+                objectList[i][1] = list.get(i)[1];
+            }
+            // Return it
+            return objectList;
+        } catch (SQLException ex) {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        // Something went wrong way
+        return null;
+    }
+    
+    public int[] getCrawlerStats(){
+        try {
+            // Get the crawled
+            String countQuery = "SELECT md5 FROM crawled";
+                    
+            // Create and execute the query
+            Statement rst = conn.createStatement();
+            ResultSet crawledCount = rst.executeQuery(countQuery);
+            
+            // Go to the last row and try to get it
+            crawledCount.last();
+            int crawledRowcount = crawledCount.getRow();
+            
+            // Get the pending
+            String pendingQuery = "SELECT md5 FROM pending";
+                    
+            // Create and execute the query
+            Statement rst1 = conn.createStatement();
+            ResultSet pendingCount = rst1.executeQuery(pendingQuery);
+            
+            // Go to the last row and try to get it
+            pendingCount.last();
+            int pendingRowcount = pendingCount.getRow();
+            
+            // Retuern it
+            return new int[]{crawledRowcount,pendingRowcount};
+        } catch (SQLException ex) {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        // somethings wrong
+        return new int[]{-1,-1};
     }
 }

@@ -43,14 +43,17 @@ public class ImageStat extends Stat {
                 url = new URL(imageURL);
                 // Open up a connection
                 URLConnection conn = url.openConnection();
+                conn.connect();
                 
                 // Determine the size
                 int size = conn.getContentLength();
                 String type = imageURL.substring(imageURL.lastIndexOf(".")+1, imageURL.length());
-                
+                // Fix issues with differentally cased extensions and jpeg/jpg
+                type = type.toLowerCase();
+                if(type.equals("jpeg")) type = "jpg";
                 
                 // If filesize couldn't be determined, set it to 0
-                if(size < 0){
+                if(size > 0){
                     stat += size+" ";
                 } else {
                     stat += "0 ";

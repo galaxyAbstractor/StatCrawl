@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 22, 2011 at 12:12 PM
+-- Generation Time: Apr 29, 2011 at 08:30 PM
 -- Server version: 5.5.8
 -- PHP Version: 5.3.5
 
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `crawled` (
   `url` varchar(2000) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `md5` (`md5`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=97 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=151 ;
 
 -- --------------------------------------------------------
 
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS `crawling` (
   `url` varchar(3000) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `md5` (`md5`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=61 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=291 ;
 
 -- --------------------------------------------------------
 
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `pending` (
   `url` varchar(2000) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `md5` (`md5`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12184 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=11059 ;
 
 -- --------------------------------------------------------
 

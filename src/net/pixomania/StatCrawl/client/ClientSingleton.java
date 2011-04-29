@@ -18,6 +18,7 @@ public class ClientSingleton {
      * @return the Client object
      */
     public static Client getClient(){
+        // Create a new client if it hasn't been created yet
         if(client == null) client = new Client(60000,60000);
         return client;
     }

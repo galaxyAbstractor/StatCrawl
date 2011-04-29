@@ -1,23 +1,33 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * ServerView.java
  *
  * Created on 2011-apr-08, 11:07:08
  */
 package net.pixomania.StatCrawl.server;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Server;
+import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 import net.pixomania.StatCrawl.db.Db;
+import net.pixomania.StatCrawl.db.DbQueue;
 import net.pixomania.StatCrawl.db.DbSingleton;
+import net.pixomania.StatCrawl.networking.Operation;
+import net.pixomania.StatCrawl.networking.Packet;
+import net.pixomania.StatCrawl.networking.QueueItem;
 
 /**
  *
@@ -26,14 +36,16 @@ import net.pixomania.StatCrawl.db.DbSingleton;
 public class ServerView extends javax.swing.JFrame {
     private PipedInputStream piOut;
     private PipedOutputStream poOut;
-    private DbServer server = new DbServer();
+    private Server server;
+    private DbQueue dbQueue = new DbQueue();
+    
     private Preferences prefs = Preferences.userNodeForPackage(ServerView.class);
     private Db db = DbSingleton.getDb();
     static {
        System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
     }
     
-    public static int getPort(){
+    private int getPort(){
         try {
             return Integer.parseInt(portField.getText());
         } catch(Exception e) {
@@ -47,15 +59,16 @@ public class ServerView extends javax.swing.JFrame {
     public ServerView() {
        initComponents();
        // Misses characters :S
-//       try {
-//            // Set up System.out
-//            piOut = new PipedInputStream();
-//            poOut = new PipedOutputStream(piOut);
-//            System.setOut(new PrintStream(poOut, true));
-//            new Console(piOut).start();
-//        } catch (IOException ex) {
-//
-//        }
+       // Write server output to the applications view
+       try {
+            // Set up System.out
+            piOut = new PipedInputStream();
+            poOut = new PipedOutputStream(piOut);
+            System.setOut(new PrintStream(poOut, true));
+            new Console(piOut).start();
+        } catch (IOException ex) {
+
+        }
     }
 
     /** This method is called from within the constructor to
@@ -338,13 +351,70 @@ public class ServerView extends javax.swing.JFrame {
         // If the button is selected we should run, if the button get's untoggled we should cancel
         if(btn.isSelected()){
             if(db.isConnected()){
+                try {
+            dbQueue.resetQueue();
+            dbQueue.start();
+            server = new Server(60000,60000);
+            
+            int port = getPort();
+            if(port == -1) {
+                System.out.println("  Illegal port");
+            } else {
+                Kryo kryo = server.getKryo();
+
+                // Register the classes we are sending
+                kryo.register(Packet.class);
+                kryo.register(net.pixomania.StatCrawl.networking.Type.class);
+                kryo.register(QueueItem.class);
+                kryo.register(ArrayList.class);
+                kryo.register(LinkedList.class);
+                kryo.register(Operation.class);
+                
                 server.start();
+                server.bind(getPort());
+                
+                server.addListener(new Listener() {
+                    @Override
+                    public void received (Connection connection, Object object) {
+                       if (object instanceof Packet) {
+                          Packet request = (Packet)object;
+                          Packet p;
+                          // What should we respond to the clients?
+                          switch(request.type){
+                              case FETCH:
+                                  // Client wants new links, send him some! Otherwise unhappy customer :'(
+                                  p = new Packet();
+                                  p.data = db.getFirstTenPending();
+                                  p.type = net.pixomania.StatCrawl.networking.Type.TOCRAWL;
+                                  connection.sendTCP(p);
+                                  break;
+                              case QUERIES:
+                                  dbQueue.addAll((Collection<QueueItem>) request.data);
+                                  break;
+                              case PENDING:
+                                  db.insertPending((String) request.data);
+                                  break;
+                          }
+                       } 
+                    }
+                    @Override
+                    public void connected (Connection connection) {
+
+                    }
+                });
+
+                
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ServerView.class.getName()).log(Level.SEVERE, null, ex);
+        }
             } else {
                 JOptionPane.showMessageDialog(rootPane, "There is no database connection. Wrong info in settings menu?");
                 btn.setSelected(false);
             }
         } else {
             server.stop();
+            dbQueue.stopQueue();
         }
     }//GEN-LAST:event_tglServerTglActionPerformed
 

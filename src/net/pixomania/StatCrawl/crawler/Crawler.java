@@ -194,7 +194,7 @@ public class Crawler extends Thread {
                     String host = url2.getHost();
                     try {
                         QueueItem qi = new QueueItem();
-                        qi.data = host + " " + InetAddress.getByName(host).getHostAddress() + " " + ex.getMessage().substring(0, 2);
+                        qi.data = host + " " + InetAddress.getByName(host).getHostAddress() + " " + ex.getMessage().substring(0, 3);
                         qi.operation = Operation.ERROR;
                         DbStore.add(qi);
                         // Remove one from the counter
@@ -203,7 +203,7 @@ public class Crawler extends Thread {
                         // Remove one from the counter
                         sitesToCrawl--;
                         QueueItem qi = new QueueItem();
-                        qi.data = host + " unknownIP "+ ex.getMessage().substring(0, 2);
+                        qi.data = host + " unknownIP "+ ex.getMessage().substring(0, 3);
                         qi.operation = Operation.ERROR;
                         DbStore.add(qi);
                     }
