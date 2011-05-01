@@ -1,8 +1,16 @@
-/*
- * ServerView.java
- *
- * Created on 2011-apr-08, 11:07:08
- */
+/*******************************************************************
+* StatCrawl
+*
+* Copyright (c) 2011, http://pixomania.net
+*
+* Licensed under the BSD License
+* Redistributions of files must retain the above copyright notice.
+*
+* Please see LICENSE.txt for more info.
+*
+* @copyright Copyright 2011, pixomania, http://pixomania.net
+* @license BSD license (http://www.opensource.org/licenses/bsd-license.php)
+********************************************************************/
 package net.pixomania.StatCrawl.server;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -350,15 +358,15 @@ public class ServerView extends javax.swing.JFrame {
         
         // If the button is selected we should run, if the button get's untoggled we should cancel
         if(btn.isSelected()){
+            dbQueue = new DbQueue();
             if(db.isConnected()){
                 try {
-            dbQueue.resetQueue();
             dbQueue.start();
             server = new Server(60000,60000);
             
             int port = getPort();
             if(port == -1) {
-                System.out.println("  Illegal port");
+                System.out.println("Illegal port");
             } else {
                 Kryo kryo = server.getKryo();
 
@@ -390,9 +398,11 @@ public class ServerView extends javax.swing.JFrame {
                                   break;
                               case QUERIES:
                                   dbQueue.addAll((Collection<QueueItem>) request.data);
+                                  connection.sendTCP("Thanks");
                                   break;
                               case PENDING:
                                   db.insertPending((String) request.data);
+                                  connection.sendTCP("Thanks");
                                   break;
                           }
                        } 

@@ -1,3 +1,16 @@
+/*******************************************************************
+* StatCrawl
+*
+* Copyright (c) 2011, http://pixomania.net
+*
+* Licensed under the BSD License
+* Redistributions of files must retain the above copyright notice.
+*
+* Please see LICENSE.txt for more info.
+*
+* @copyright Copyright 2011, pixomania, http://pixomania.net
+* @license BSD license (http://www.opensource.org/licenses/bsd-license.php)
+********************************************************************/
 package net.pixomania.StatCrawl.db;
 
 import java.util.Collection;
@@ -27,9 +40,8 @@ public class DbQueue extends Thread {
      * Adds a list of queries to the pending queue
      * @param items
      */
-    public synchronized void addAll(Collection<QueueItem> items){
+    public void addAll(Collection<QueueItem> items){
         pendingQueries.addAll(items);
-        this.notify();
     }
     
     /**
@@ -96,11 +108,11 @@ public class DbQueue extends Thread {
                         db.insertError(item.data);
                         break;
                 }
-
+                
              } else {
                 if(run){
                     try {
-                        this.wait();
+                        DbQueue.sleep(5000);
                     } catch (InterruptedException ex) {
                         run = false;
                     }

@@ -1,3 +1,16 @@
+/*******************************************************************
+* StatCrawl
+*
+* Copyright (c) 2011, http://pixomania.net
+*
+* Licensed under the BSD License
+* Redistributions of files must retain the above copyright notice.
+*
+* Please see LICENSE.txt for more info.
+*
+* @copyright Copyright 2011, pixomania, http://pixomania.net
+* @license BSD license (http://www.opensource.org/licenses/bsd-license.php)
+********************************************************************/
 package net.pixomania.StatCrawl.client;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -28,6 +41,7 @@ public class ClientView extends javax.swing.JFrame {
     private Client client;
     private Crawler crawler = CrawlerSingleton.getCrawler();
     private static DefaultTableModel model;
+    private boolean first = true;
 
     static {
         System.setProperty("swing.defaultlaf", "org.pushingpixels.substance.api.skin.SubstanceGeminiLookAndFeel");
@@ -186,59 +200,68 @@ public class ClientView extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(rootPane, "Invalid URL\n Either there is no URL, or it doesn't start with http(s)://");
                 btn.setSelected(false);
             } else {
-                client = ClientSingleton.getClient();
                 Log.set(Log.LEVEL_DEBUG);
-                Kryo kryo = client.getKryo();
-
-
-                // Register the classes we are sending
-                kryo.register(Packet.class);
-                kryo.register(net.pixomania.StatCrawl.networking.Type.class);
-                kryo.register(QueueItem.class);
-                kryo.register(ArrayList.class);
-                kryo.register(LinkedList.class);
-                kryo.register(Operation.class);
-
-                client.start();
-                client.setName("hej");
-
                 try {
-
-                    client.connect(30000, hostField.getText(), Integer.parseInt(portField.getText()));
-                    client.setKeepAliveTCP(5000);
-                    client.addListener(new Listener() {
-
-                        @Override
-                        public void received(Connection connection, Object object) {
-                            if (object instanceof Packet) {
-                                // Get our packet
-                                Packet response = (Packet) object;
-
-                                // Check the type of the packet. Different types are defined in the Type enum
-                                switch(response.type){
-                                    case TOCRAWL:
-                                        // We got a packet with links to crawl. Lets crawl them!
-                                        crawler.setPending((LinkedList<String>) response.data);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            } 
-                        }
+                    // First time we start the program we should add the settings and listeners
+                    if(first) {
+                        client = ClientSingleton.getClient();
                         
-                        @Override
-                        public void disconnected(Connection connection){
-                            System.out.println("Disconnected :s");
-                        }
-                    });
+                        Kryo kryo = client.getKryo();
 
+                        // Register the classes we are sending
+                        kryo.register(Packet.class);
+                        kryo.register(net.pixomania.StatCrawl.networking.Type.class);
+                        kryo.register(QueueItem.class);
+                        kryo.register(ArrayList.class);
+                        kryo.register(LinkedList.class);
+                        kryo.register(Operation.class);
+
+                        client.start();
+                        client.setName("hej");
+
+                        client.connect(30000, hostField.getText(), Integer.parseInt(portField.getText()));
+                        client.setKeepAliveTCP(5000);
+                        client.addListener(new Listener() {
+
+                            @Override
+                            public void received(Connection connection, Object object) {
+                                if (object instanceof Packet) {
+                                    // Get our packet
+                                    Packet response = (Packet) object;
+
+                                    // Check the type of the packet. Different types are defined in the Type enum
+                                    switch(response.type){
+                                        case TOCRAWL:
+                                            // We got a packet with links to crawl. Lets crawl them!
+                                            crawler.setPending((LinkedList<String>) response.data);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                } else if (object instanceof String) {
+                                    System.out.println(object);
+                                }
+
+                            }
+
+                        });
+                    } else {
+                        // All other times, just reconnect
+                        client.reconnect();
+                    }
+                    
+                    // Submit the first URL packet
                     Packet p = new Packet();
                     p.data = urlField.getText();
                     p.type = net.pixomania.StatCrawl.networking.Type.PENDING;
                     client.sendTCP(p);
                     
+                    // Reset the crawler
                     crawler.resetCrawler();
-                    crawler.start();
+                    
+                    // We have to start the thread, but only on the first run
+                    if(first) crawler.start();
+                    first = false;
                 } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(rootPane, "illegal port");
                     connectTgl.setSelected(false);

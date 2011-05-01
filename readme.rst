@@ -4,6 +4,7 @@ Country database from http://ipinfodb.com/ip_database.php is needed (Complete (c
 
 Changelog
 =======
+* May 01, 2011: Fixed timeout by removing synchronized from the addAll() DbQueue method. Some commenting.
 * Apr 29, 2011: All stats added to the statistics page. Some commenting. Some JUnit tests added.
 * Apr 28, 2011: Added window to chose what application to start, Server, Client or Statview. Added ability to submit initial URL, so you now can start crawling over network without having any links in the db. Some more error handling like HTTP error codes. Stats window updated to include the IP/Host category, with working statdisplay and sortable tables. A timeout is still happening after first batch of results are succefully submitted...
 * Apr 27, 2011: Added a settings dialog for database stuff in the Server. Added better error handling for when you cannot connect to the database. Will reconnect when you change the database settings and ensure a connection is open.

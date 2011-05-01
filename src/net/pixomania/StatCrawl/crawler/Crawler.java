@@ -1,3 +1,16 @@
+/*******************************************************************
+* StatCrawl
+*
+* Copyright (c) 2011, http://pixomania.net
+*
+* Licensed under the BSD License
+* Redistributions of files must retain the above copyright notice.
+*
+* Please see LICENSE.txt for more info.
+*
+* @copyright Copyright 2011, pixomania, http://pixomania.net
+* @license BSD license (http://www.opensource.org/licenses/bsd-license.php)
+********************************************************************/
 package net.pixomania.StatCrawl.crawler;
 
 
@@ -51,8 +64,11 @@ public class Crawler extends Thread {
     /**
      * Resets the run boolean back to true so we can restart the crawler
      */
-    public void resetCrawler(){
+    public synchronized void resetCrawler(){
         run = true;
+        doneParsing = 0;
+        sitesToCrawl = 0;
+        this.notify();
     }
 
     /**
@@ -154,7 +170,13 @@ public class Crawler extends Thread {
                     }
                     // Get the contenttype
                     String contenttype = connection.getContentType();
-                    if((!contenttype.contains("text/html")) || (contenttype == null)){
+                    if(contenttype == null){
+                        System.out.println("Probably NOT HTML");
+                        // Remove one from the counter
+                        sitesToCrawl--;
+                        continue;
+                    }
+                    if((!contenttype.contains("text/html"))){
                         System.out.println("NOT HTML");
                         // Remove one from the counter
                         sitesToCrawl--;
@@ -228,7 +250,7 @@ public class Crawler extends Thread {
                     if(i != list.size()-1){
                         // Wait a bit to send next package, otherwise the computer may suffer connection loss
                         try {
-                            this.sleep(3000);
+                            this.sleep(5000);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Crawler.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -255,6 +277,12 @@ public class Crawler extends Thread {
             }
         }
         System.out.println("Crawler has stopped");
+        try {
+            this.wait();
+            crawl();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Crawler.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     /**
      * chops a list into non-view sublists of length L
